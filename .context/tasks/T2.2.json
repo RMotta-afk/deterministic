@@ -14,6 +14,6 @@
   ],
   "parallel_group": null,
   "acceptance_test": "Ingest records a local fixture content revision and a pinned Git commit",
-  "sdd_snippet": "The loader accepts repository URLs or local paths, records an exact revision, and filters source, manifests, and tests.",
+  "sdd_snippet": "The loader accepts repository URLs or local paths, records an exact revision, and filters source, manifests, and tests. Source snapshots and ingest inputs use Pydantic boundary models.",
   "status": "in_progress"
 }

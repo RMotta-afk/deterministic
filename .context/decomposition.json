@@ -108,7 +108,7 @@
       ],
       "parallel_group": null,
       "acceptance_test": "A catalog entry persists and ready-only listing excludes incomplete ingestion",
-      "sdd_snippet": "DuckDB at /data/catalog/projects.duckdb holds indexed snapshots and run transitions; the CLI is its sole writer."
+      "sdd_snippet": "DuckDB at /data/catalog/projects.duckdb holds indexed snapshots and run transitions; the CLI is its sole writer. Project rows use strict versioned Pydantic validation on construction and read."
     },
     {
       "task_id": "T2.2",
@@ -126,7 +126,7 @@
       ],
       "parallel_group": null,
       "acceptance_test": "Ingest records a local fixture content revision and a pinned Git commit",
-      "sdd_snippet": "The loader accepts repository URLs or local paths, records an exact revision, and filters source, manifests, and tests."
+      "sdd_snippet": "The loader accepts repository URLs or local paths, records an exact revision, and filters source, manifests, and tests. Source snapshots and ingest inputs use Pydantic boundary models."
     },
     {
       "task_id": "T2.3",
@@ -156,11 +156,11 @@
         "src/deterministic/memory/base.py"
       ],
       "blocked_by": [
-        "T2.3"
+        "T2.4"
       ],
       "parallel_group": null,
       "acceptance_test": "Adapter contract checks IDs, provenance, budget, and persistence results",
-      "sdd_snippet": "Agents use MemoryAdapter retrieve_context and persist_artifact without knowing the backing store."
+      "sdd_snippet": "Agents use MemoryAdapter retrieve_context and persist_artifact without knowing the backing store. Adapter inputs and outputs use Pydantic models."
     },
     {
       "task_id": "T3.2",
@@ -228,7 +228,7 @@
       ],
       "parallel_group": null,
       "acceptance_test": "A controlled case produces a cited context pack, ordered tasks, and target code",
-      "sdd_snippet": "Agents build cited Context Packs, ordered Migration Tasks, and generated target files via MemoryAdapter."
+      "sdd_snippet": "Agents build cited Context Packs, ordered Migration Tasks, and generated target files via MemoryAdapter. Context Packs, tasks, and artifact metadata use Pydantic models."
     },
     {
       "task_id": "T4.3",
@@ -245,7 +245,7 @@
       ],
       "parallel_group": null,
       "acceptance_test": "Both controlled directions compile and pass predefined executable behavioral tests",
-      "sdd_snippet": "Validation checks compile/import/contracts and executable behavior, with bounded retries and failure feedback."
+      "sdd_snippet": "Validation checks compile/import/contracts and executable behavior, with bounded retries and failure feedback. Validation results use Pydantic models."
     },
     {
       "task_id": "T5.1",
@@ -262,7 +262,7 @@
       ],
       "parallel_group": null,
       "acceptance_test": "Every run writes a manifest and valid JSONL with IDs, timings, tokens, costs, and validation events",
-      "sdd_snippet": "Each run writes metrics.jsonl, code, validator output, run settings, and complete cost accounting."
+      "sdd_snippet": "Each run writes metrics.jsonl, code, validator output, run settings, and complete cost accounting. Run manifests and JSONL events use versioned Pydantic models."
     },
     {
       "task_id": "T5.2",
@@ -281,15 +281,51 @@
       "parallel_group": null,
       "acceptance_test": "Evaluate reports each completed run, paired deltas, and incomplete-run exclusions",
       "sdd_snippet": "Evaluate reads DuckDB, manifests, JSONL, validation, and artifacts; groups by revision and direction."
+    },
+    {
+      "task_id": "T1.4",
+      "goal_id": "G1",
+      "title": "Enforce Ruff and boundary schema quality gates",
+      "rationale": "Commits must pass lint, formatting, tests, and explicit validation rules before later components are added.",
+      "sdd_reference": ".docs/base.md#validation-schemas-and-commit-gate",
+      "files": [
+        ".pre-commit-config.yaml",
+        "pyproject.toml",
+        ".docs/base.md"
+      ],
+      "blocked_by": [
+        "T1.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "uv run pre-commit run --all-files passes Ruff and pytest",
+      "sdd_snippet": "Use Pydantic v2 for cross-stage and persisted records; pre-commit runs Ruff check, Ruff format, and pytest."
+    },
+    {
+      "task_id": "T2.4",
+      "goal_id": "G2",
+      "title": "Validate shared evidence schemas",
+      "rationale": "Parsed entities, relations, and summaries must be checked before either memory arm ingests them.",
+      "sdd_reference": ".docs/base.md#validation-schemas-and-commit-gate",
+      "files": [
+        "src/deterministic/ingestion/schemas.py"
+      ],
+      "blocked_by": [
+        "T2.3"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Invalid persisted evidence is rejected before memory indexing",
+      "sdd_snippet": "Entities, relations, and shared summaries use strict versioned Pydantic models at storage boundaries."
     }
   ],
   "topological_order": [
     "T1.1",
+    "T1.4",
     "T1.2",
     "T1.3",
     "T2.1",
     "T2.2",
     "T2.3",
+    "T2.4",
     "T3.1",
     "T3.2",
     "T3.3",

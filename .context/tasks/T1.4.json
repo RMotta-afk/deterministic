@@ -1,0 +1,19 @@
+{
+  "task_id": "T1.4",
+  "goal_id": "G1",
+  "title": "Enforce Ruff and boundary schema quality gates",
+  "rationale": "Commits must pass lint, formatting, tests, and explicit validation rules before later components are added.",
+  "sdd_reference": ".docs/base.md#validation-schemas-and-commit-gate",
+  "files": [
+    ".pre-commit-config.yaml",
+    "pyproject.toml",
+    ".docs/base.md"
+  ],
+  "blocked_by": [
+    "T1.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "uv run pre-commit run --all-files passes Ruff and pytest",
+  "sdd_snippet": "Use Pydantic v2 for cross-stage and persisted records; pre-commit runs Ruff check, Ruff format, and pytest.",
+  "status": "completed"
+}

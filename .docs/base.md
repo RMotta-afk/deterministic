@@ -60,6 +60,12 @@ Use `/data/cache` for pinned repository snapshots, parsed evidence, shared evide
 
 Every stage emits human-readable progress and structured JSONL events with timestamps, stage, project ID, operation or run ID, source revision, settings, cache hits, errors, and artifact paths. Each ingest operation and migration run has its own log and manifest under `/data/runs/`. Record status transitions in DuckDB so `ingest` and `migrate` can show what is ready, running, failed, or complete. Run one catalog-writing CLI process at a time in the first prototype. Do not store secrets in logs.
 
+### Validation Schemas and Commit Gate
+
+Use **Pydantic v2** models for all Python data crossing a stage, process, storage, or agent boundary: CLI/run configuration, source snapshots, DuckDB project and run records, parsed entities and relations, shared evidence summaries, Context Packs, Migration Tasks, memory-adapter requests and results, generated-artifact metadata, validation results, run manifests, and telemetry events. Validate untrusted or persisted data when it enters the process (`model_validate` or `model_validate_json`), and serialize through the schema when writing it. Use strict fields, explicit allowed values, forbidden extra fields, and a schema version for durable artifacts. SQL constraints and TypeScript compile checks supplement these schemas; they do not replace boundary validation. Keep implementation-local scratch values lightweight where they do not cross a boundary.
+
+The `.pre-commit-config.yaml` gate runs Ruff lint and format checks, followed by the Python test suite. Install it after setting up the development environment and run it across all files before commits. A passing hook verifies formatting, lint rules, and current tests; the benchmark's behavioral validation remains a separate runtime gate.
+
 ---
 
 ### Entrypoint A: `run_vector_pipeline` (Baseline — VectorRAG)
@@ -243,6 +249,8 @@ deterministic/
 ├── Dockerfile                   # Pinned CLI/runtime tooling and writable data paths
 
 ├── .dockerignore                # Exclude runtime data and secrets from image context
+
+├── .pre-commit-config.yaml      # Ruff and test hooks
 
 ├── .env.example                 # API keys, FalkorDB and Qdrant connections
 

@@ -8,8 +8,19 @@ import os
 from collections.abc import Sequence
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from deterministic.catalog import Catalog, Project
 from deterministic.ingestion.repo_loader import load_source
+
+
+class IngestRequest(BaseModel):
+    """Validated input crossing from CLI parsing into ingestion."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    source: str = Field(min_length=1)
+    data_dir: Path
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,12 +46,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "ingest":
-        data_dir = Path(os.environ.get("DETERMINISTIC_DATA_DIR", "data"))
-        snapshot = load_source(args.source, data_dir / "cache" / "sources")
-        project_id = hashlib.sha256(
-            f"{args.source}\0{snapshot.revision}".encode("utf-8")
-        ).hexdigest()[:16]
-        with Catalog(data_dir / "catalog" / "projects.duckdb") as catalog:
+        request = IngestRequest.model_validate(
+            {
+                "source": args.source,
+                "data_dir": Path(os.environ.get("DETERMINISTIC_DATA_DIR", "data")),
+            }
+        )
+        snapshot = load_source(request.source, request.data_dir / "cache" / "sources")
+        project_id = hashlib.sha256(f"{request.source}\0{snapshot.revision}".encode()).hexdigest()[
+            :16
+        ]
+        with Catalog(request.data_dir / "catalog" / "projects.duckdb") as catalog:
             catalog.upsert_project(
                 Project(
                     project_id=project_id,

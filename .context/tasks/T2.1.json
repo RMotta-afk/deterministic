@@ -14,6 +14,6 @@
   ],
   "parallel_group": null,
   "acceptance_test": "A catalog entry persists and ready-only listing excludes incomplete ingestion",
-  "sdd_snippet": "DuckDB at /data/catalog/projects.duckdb holds indexed snapshots and run transitions; the CLI is its sole writer.",
+  "sdd_snippet": "DuckDB at /data/catalog/projects.duckdb holds indexed snapshots and run transitions; the CLI is its sole writer. Project rows use strict versioned Pydantic validation on construction and read.",
   "status": "completed"
 }

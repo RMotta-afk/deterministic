@@ -1,8 +1,8 @@
 """Source snapshots remain stable after the input changes."""
 
-from deterministic.ingestion.repo_loader import load_source
 from deterministic.catalog import Catalog
 from deterministic.cli import main
+from deterministic.ingestion.repo_loader import load_source
 
 
 def test_local_snapshot_is_content_addressed_and_immutable(tmp_path):

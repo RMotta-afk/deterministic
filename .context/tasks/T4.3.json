@@ -13,6 +13,6 @@
   ],
   "parallel_group": null,
   "acceptance_test": "Both controlled directions compile and pass predefined executable behavioral tests",
-  "sdd_snippet": "Validation checks compile/import/contracts and executable behavior, with bounded retries and failure feedback.",
+  "sdd_snippet": "Validation checks compile/import/contracts and executable behavior, with bounded retries and failure feedback. Validation results use Pydantic models.",
   "status": "pending"
 }

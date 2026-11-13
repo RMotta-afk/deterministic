@@ -6,28 +6,29 @@ import hashlib
 import shutil
 import subprocess
 import tempfile
-from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
+from pydantic import BaseModel, ConfigDict, Field
 
 EXCLUDED_DIRS = {".git", ".venv", "node_modules", "__pycache__", "dist", "build"}
 
 
-@dataclass(frozen=True)
-class SourceSnapshot:
-    source: str
-    revision: str
+class SourceSnapshot(BaseModel):
+    """Validated reference to an immutable source cache entry."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    source: str = Field(min_length=1)
+    revision: str = Field(min_length=1)
     path: Path
+    schema_version: Literal[1] = 1
 
 
 def _copy_source(source: Path, target: Path) -> None:
     def ignore(directory: str, names: list[str]) -> set[str]:
         root = Path(directory)
-        return {
-            name
-            for name in names
-            if name in EXCLUDED_DIRS or (root / name).is_symlink()
-        }
+        return {name for name in names if name in EXCLUDED_DIRS or (root / name).is_symlink()}
 
     shutil.copytree(source, target, ignore=ignore)
 

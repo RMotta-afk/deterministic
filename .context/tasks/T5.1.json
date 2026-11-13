@@ -13,6 +13,6 @@
   ],
   "parallel_group": null,
   "acceptance_test": "Every run writes a manifest and valid JSONL with IDs, timings, tokens, costs, and validation events",
-  "sdd_snippet": "Each run writes metrics.jsonl, code, validator output, run settings, and complete cost accounting.",
+  "sdd_snippet": "Each run writes metrics.jsonl, code, validator output, run settings, and complete cost accounting. Run manifests and JSONL events use versioned Pydantic models.",
   "status": "pending"
 }

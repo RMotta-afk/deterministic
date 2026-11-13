@@ -1,0 +1,17 @@
+{
+  "task_id": "T2.4",
+  "goal_id": "G2",
+  "title": "Validate shared evidence schemas",
+  "rationale": "Parsed entities, relations, and summaries must be checked before either memory arm ingests them.",
+  "sdd_reference": ".docs/base.md#validation-schemas-and-commit-gate",
+  "files": [
+    "src/deterministic/ingestion/schemas.py"
+  ],
+  "blocked_by": [
+    "T2.3"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Invalid persisted evidence is rejected before memory indexing",
+  "sdd_snippet": "Entities, relations, and shared summaries use strict versioned Pydantic models at storage boundaries.",
+  "status": "pending"
+}

@@ -7,10 +7,20 @@ name = "deterministic"
 version = "0.1.0"
 description = "Paired graph and vector memory benchmark for code migration"
 requires-python = ">=3.13,<3.14"
-dependencies = ["duckdb>=1.4,<3"]
+dependencies = ["duckdb>=1.4,<3", "pydantic>=2.14,<3"]
+
+[dependency-groups]
+dev = ["pre-commit>=4,<5", "pytest>=9,<10", "ruff==0.17.3"]
 
 [project.scripts]
 deterministic = "deterministic.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/deterministic"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
