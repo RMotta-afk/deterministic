@@ -1,0 +1,21 @@
+{
+  "passed": false,
+  "checks": {
+    "list_show_key_boundary": true,
+    "validation_422": false,
+    "merge_latest_companies": true,
+    "conflict_409": true,
+    "key_date_conflict_409": true,
+    "key_dates_add_remove": true,
+    "unchanged_update_no_put": true,
+    "missing_and_upstream_502": true,
+    "uncertain_applied_504": true,
+    "uncertain_dropped_504": true,
+    "syntax_or_compile": true,
+    "real_upstream_connection": true,
+    "frontend_proxy_configuration": true,
+    "behavioral": false
+  },
+  "output": "validation_422: AssertionError: ",
+  "schema_version": 1
+}

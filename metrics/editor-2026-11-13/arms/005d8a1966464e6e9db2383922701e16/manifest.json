@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "run_id": "005d8a1966464e6e9db2383922701e16",
+  "pair_id": "c74c5d210afb412985e55d26078cc92e",
+  "project_id": "681cbe488a3e94c4",
+  "revision": "a1131142f155762405c5c6843639b5e7d857b1a9fbdb657cc8faa922f4d53fc1:scope:9c0b315aa5f56c2d98c1028ab4b388b193a8cd1a4b1c9783bf364ee9365eedef",
+  "direction": "python-to-typescript",
+  "memory": "vector",
+  "status": "failed",
+  "settings": {
+    "retry_cap": 2,
+    "token_budget": 4000,
+    "context_accounting": "whitespace_words_estimate",
+    "generator": "openai-compatible-chat-v1",
+    "model": "gpt-5.4-mini",
+    "prompt_version": "a972bca2f26282b2",
+    "max_completion_tokens": 6000,
+    "arm_order": "graph_first",
+    "schema_version": 1,
+    "parser_version": "4",
+    "embedding_version": "text-embedding-3-small",
+    "summary_model": "gpt-5.4-mini",
+    "preprocessing_ms": 37103.52607999994,
+    "preprocessing_summary_input_tokens": 9705,
+    "preprocessing_summary_output_tokens": 2548,
+    "preprocessing_embedding_tokens": 2504,
+    "typescript_version": "Version 7.0.2",
+    "node_version": "v22.23.5",
+    "python_version": "Python 3.13.18",
+    "scope_id": "project-editor",
+    "source_commit": "cd588660d6f30fefbf1ba030e6890f93279dddf1"
+  }
+}

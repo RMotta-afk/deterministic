@@ -31,6 +31,8 @@ docker compose run --rm cli evaluate --project <project-id>
 
 The result is `/data/runs/evaluation/evaluation.json` in the persistent `runs` volume. Each run has its own manifest, context traces, metrics JSONL, validation result, model responses, and generated code. A failed arm remains in the report and in the success-rate denominator. The generated `server.ts` is compiled and tested against a controlled upstream for edge cases, then against Editor's preserved records service for live GET/PUT connectivity. Validation also checks the unchanged frontend's `/api` proxy target.
 
+The first live Editor study and its retained evidence are in [.docs/observability.md](.docs/observability.md) and [metrics/](metrics/README.md). The archive includes failed arms and a checksum list; `.env` and service volumes are excluded.
+
 The first POC uses one backend generation task and a whitespace-word context packing estimate. Provider prompt and completion tokens come from API usage. Shared preprocessing cost is reported separately; runtime provider USD costs require the optional rates in `.env`. No USD price is invented for self-hosted database infrastructure. One repository and one migration direction establish feasibility, not broad long-horizon or language-general results.
 
 ## Verify the pipeline without model spending

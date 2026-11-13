@@ -224,6 +224,8 @@ Both entrypoints execute the exact same LangGraph state machine. Agents interact
 
 To test the thesis, every agent step and database query writes structured telemetry to `/data/runs/{run_id}/metrics.jsonl`, alongside generated code and validator output for failure review.
 
+For the TCC record, retain scored evaluation snapshots, per-arm telemetry and validation, and the final generated source under `metrics/`, with a companion observability note in `.docs/`. Archive failed arms and record source/model versions, pricing assumptions, missing values, and limitations. Exclude credentials and runtime service volumes.
+
 | Metric Category | Metric Name | Operational Definition & How It Is Measured | Research Purpose |
 
 | :--- | :--- | :--- | :--- |

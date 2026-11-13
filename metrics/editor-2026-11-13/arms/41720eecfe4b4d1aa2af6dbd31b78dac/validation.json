@@ -1,0 +1,21 @@
+{
+  "passed": false,
+  "checks": {
+    "list_show_key_boundary": false,
+    "validation_422": true,
+    "merge_latest_companies": false,
+    "conflict_409": false,
+    "key_date_conflict_409": false,
+    "key_dates_add_remove": false,
+    "unchanged_update_no_put": false,
+    "missing_and_upstream_502": true,
+    "uncertain_applied_504": false,
+    "uncertain_dropped_504": false,
+    "syntax_or_compile": true,
+    "real_upstream_connection": false,
+    "frontend_proxy_configuration": true,
+    "behavioral": false
+  },
+  "output": "list_show_key_boundary: AssertionError: \nmerge_latest_companies: AssertionError: \nconflict_409: AssertionError: \nkey_date_conflict_409: AssertionError: \nkey_dates_add_remove: AssertionError: \nunchanged_update_no_put: AssertionError: \nuncertain_applied_504: AssertionError: \nuncertain_dropped_504: AssertionError: \nreal_upstream_connection: AssertionError: ",
+  "schema_version": 1
+}

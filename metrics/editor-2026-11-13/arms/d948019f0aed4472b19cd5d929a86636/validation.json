@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": {
+    "list_show_key_boundary": true,
+    "validation_422": true,
+    "merge_latest_companies": true,
+    "conflict_409": true,
+    "key_date_conflict_409": true,
+    "key_dates_add_remove": true,
+    "unchanged_update_no_put": true,
+    "missing_and_upstream_502": true,
+    "uncertain_applied_504": true,
+    "uncertain_dropped_504": true,
+    "syntax_or_compile": true,
+    "real_upstream_connection": true,
+    "frontend_proxy_configuration": true,
+    "behavioral": true
+  },
+  "output": "",
+  "schema_version": 1
+}

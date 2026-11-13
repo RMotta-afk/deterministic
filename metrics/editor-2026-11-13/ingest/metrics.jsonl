@@ -1,0 +1,2 @@
+{"schema_version":1,"timestamp":1794607034.6773024,"stage":"ingest","run_id":"de298e1495f145dda0da3d4428b36164","event":"ingest_started","duration_ms":0.00719399940862786,"input_tokens":0,"output_tokens":0,"cost":null,"details":{"profile":"project-editor"}}
+{"schema_version":1,"timestamp":1794607073.009891,"stage":"ingest","run_id":"de298e1495f145dda0da3d4428b36164","event":"ingest_ready","duration_ms":38334.682777000125,"input_tokens":12209,"output_tokens":2548,"cost":null,"details":{"project_id":"681cbe488a3e94c4","cache_hit":false,"entity_count":132}}

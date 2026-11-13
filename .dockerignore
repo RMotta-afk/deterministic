@@ -6,6 +6,7 @@ runs
 .cache
 .context
 fixtures
+metrics
 __pycache__
 .pytest_cache
 *.pyc
