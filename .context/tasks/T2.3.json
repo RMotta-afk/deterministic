@@ -1,0 +1,19 @@
+{
+  "task_id": "T2.3",
+  "goal_id": "G2",
+  "title": "Extract and cache shared evidence",
+  "rationale": "The arms must reuse identical parsed entities, summaries, and embeddings.",
+  "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+  "files": [
+    "src/deterministic/ingestion/parser.py",
+    "src/deterministic/ingestion/cache.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [
+    "T2.2"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Re-ingesting unchanged input yields the same evidence IDs and cache hits",
+  "sdd_snippet": "Parse Python and TypeScript entities with provenance; cache summaries and embeddings by content and tooling versions.",
+  "status": "pending"
+}

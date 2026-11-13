@@ -1,0 +1,18 @@
+{
+  "task_id": "T1.3",
+  "goal_id": "G1",
+  "title": "Wire persistent local services",
+  "rationale": "The CLI and both databases require stable volumes across rebuilds.",
+  "sdd_reference": ".docs/base.md#container-and-runtime-storage",
+  "files": [
+    "docker-compose.yml",
+    ".env.example"
+  ],
+  "blocked_by": [
+    "T1.2"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "docker compose config succeeds",
+  "sdd_snippet": "Compose runs the CLI, Qdrant, and FalkorDB with persistent storage and runtime credentials.",
+  "status": "completed"
+}

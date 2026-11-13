@@ -1,0 +1,19 @@
+{
+  "task_id": "T4.2",
+  "goal_id": "G4",
+  "title": "Implement agent steps",
+  "rationale": "Context packs, tasks, and migrated code must retain source evidence and run provenance.",
+  "sdd_reference": ".docs/base.md#agent-roles--responsibilities",
+  "files": [
+    "src/deterministic/agents/understanding.py",
+    "src/deterministic/agents/planner.py",
+    "src/deterministic/agents/builder.py"
+  ],
+  "blocked_by": [
+    "T4.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "A controlled case produces a cited context pack, ordered tasks, and target code",
+  "sdd_snippet": "Agents build cited Context Packs, ordered Migration Tasks, and generated target files via MemoryAdapter.",
+  "status": "pending"
+}

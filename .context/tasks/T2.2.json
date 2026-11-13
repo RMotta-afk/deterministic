@@ -1,0 +1,19 @@
+{
+  "task_id": "T2.2",
+  "goal_id": "G2",
+  "title": "Load pinned repositories and fixtures",
+  "rationale": "Every case needs a recorded immutable source revision.",
+  "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+  "files": [
+    "src/deterministic/ingestion/repo_loader.py",
+    "src/deterministic/cli.py",
+    "tests/test_repo_loader.py"
+  ],
+  "blocked_by": [
+    "T2.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Ingest records a local fixture content revision and a pinned Git commit",
+  "sdd_snippet": "The loader accepts repository URLs or local paths, records an exact revision, and filters source, manifests, and tests.",
+  "status": "in_progress"
+}

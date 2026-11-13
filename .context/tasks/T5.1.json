@@ -1,0 +1,18 @@
+{
+  "task_id": "T5.1",
+  "goal_id": "G5",
+  "title": "Record complete run telemetry",
+  "rationale": "Costs, retrieval, failures, and artifacts must be auditable.",
+  "sdd_reference": ".docs/base.md#observability-telemetry--evaluation-metrics",
+  "files": [
+    "src/deterministic/telemetry/logger.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [
+    "T4.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Every run writes a manifest and valid JSONL with IDs, timings, tokens, costs, and validation events",
+  "sdd_snippet": "Each run writes metrics.jsonl, code, validator output, run settings, and complete cost accounting.",
+  "status": "pending"
+}

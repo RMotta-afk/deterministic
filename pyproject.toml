@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deterministic"
+version = "0.1.0"
+description = "Paired graph and vector memory benchmark for code migration"
+requires-python = ">=3.13,<3.14"
+dependencies = ["duckdb>=1.4,<3"]
+
+[project.scripts]
+deterministic = "deterministic.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/deterministic"]

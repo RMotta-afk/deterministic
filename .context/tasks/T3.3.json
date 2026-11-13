@@ -1,0 +1,17 @@
+{
+  "task_id": "T3.3",
+  "goal_id": "G3",
+  "title": "Implement FalkorDB graph arm",
+  "rationale": "The graph arm needs provenance-backed edges and bounded traversal.",
+  "sdd_reference": ".docs/base.md#entrypoint-b-run_graph_pipeline-experimental--graphrag",
+  "files": [
+    "src/deterministic/memory/graph_memory.py"
+  ],
+  "blocked_by": [
+    "T3.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "An isolated graph retrieves bounded linked evidence and persists task and validation nodes",
+  "sdd_snippet": "FalkorDB stores the same base entities and substantiated directed relations, with one graph per run.",
+  "status": "pending"
+}

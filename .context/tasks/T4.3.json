@@ -1,0 +1,18 @@
+{
+  "task_id": "T4.3",
+  "goal_id": "G4",
+  "title": "Validate both controlled directions",
+  "rationale": "Syntax alone cannot establish cross-language migration correctness.",
+  "sdd_reference": ".docs/base.md#prototype-scope-guardrails-kiss-constraints",
+  "files": [
+    "src/deterministic/agents/validator.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [
+    "T4.2"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Both controlled directions compile and pass predefined executable behavioral tests",
+  "sdd_snippet": "Validation checks compile/import/contracts and executable behavior, with bounded retries and failure feedback.",
+  "status": "pending"
+}

@@ -1,0 +1,17 @@
+{
+  "task_id": "T3.1",
+  "goal_id": "G3",
+  "title": "Define the memory adapter",
+  "rationale": "The workflow must use the same interface and evidence budget in both arms.",
+  "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+  "files": [
+    "src/deterministic/memory/base.py"
+  ],
+  "blocked_by": [
+    "T2.3"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Adapter contract checks IDs, provenance, budget, and persistence results",
+  "sdd_snippet": "Agents use MemoryAdapter retrieve_context and persist_artifact without knowing the backing store.",
+  "status": "pending"
+}

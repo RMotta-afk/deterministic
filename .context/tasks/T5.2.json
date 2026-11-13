@@ -1,0 +1,19 @@
+{
+  "task_id": "T5.2",
+  "goal_id": "G5",
+  "title": "Compare and report paired runs",
+  "rationale": "Evaluation must distinguish valid pairs from missing or incomplete runs.",
+  "sdd_reference": ".docs/base.md#strict-cli-stages",
+  "files": [
+    "src/deterministic/telemetry/evaluator.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [
+    "T4.3",
+    "T5.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Evaluate reports each completed run, paired deltas, and incomplete-run exclusions",
+  "sdd_snippet": "Evaluate reads DuckDB, manifests, JSONL, validation, and artifacts; groups by revision and direction.",
+  "status": "pending"
+}

@@ -1,0 +1,19 @@
+{
+  "task_id": "T2.1",
+  "goal_id": "G2",
+  "title": "Persist project and run catalog",
+  "rationale": "Only ready snapshots should be selectable, and status must survive container recreation.",
+  "sdd_reference": ".docs/base.md#strict-cli-stages",
+  "files": [
+    "pyproject.toml",
+    "src/deterministic/catalog.py",
+    "tests/test_catalog.py"
+  ],
+  "blocked_by": [
+    "T1.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "A catalog entry persists and ready-only listing excludes incomplete ingestion",
+  "sdd_snippet": "DuckDB at /data/catalog/projects.duckdb holds indexed snapshots and run transitions; the CLI is its sole writer.",
+  "status": "completed"
+}

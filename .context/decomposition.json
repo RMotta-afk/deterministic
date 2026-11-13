@@ -1,0 +1,303 @@
+{
+  "mission": {
+    "statement": "Build a containerized Python and TypeScript migration benchmark that ingests once, runs fair Qdrant and FalkorDB memory arms, and evaluates traceable paired results.",
+    "terminal_signal": "Both controlled migration directions complete ingest, paired migrate, and evaluate with behavioral results and reproducible run manifests."
+  },
+  "goals": [
+    {
+      "goal_id": "G1",
+      "title": "Runnable container and CLI foundation",
+      "rationale": "All later stages need pinned tooling, persistent paths, and a stable command entry point.",
+      "sdd_reference": ".docs/base.md#container-and-runtime-storage",
+      "completion_signal": "The image builds and the CLI responds inside the container."
+    },
+    {
+      "goal_id": "G2",
+      "title": "One-command shared ingestion",
+      "rationale": "Both arms must start from the same pinned source and cached evidence.",
+      "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+      "completion_signal": "A controlled fixture is ingested once, cached, and listed as ready in DuckDB."
+    },
+    {
+      "goal_id": "G3",
+      "title": "Isolated memory arms",
+      "rationale": "The independent variable is memory representation and retrieval under the same evidence budget.",
+      "sdd_reference": ".docs/base.md#fair-paired-comparison",
+      "completion_signal": "Both arms ingest the same snapshot and return provenance-bearing context within the same token budget."
+    },
+    {
+      "goal_id": "G4",
+      "title": "Paired migration workflow",
+      "rationale": "The shared workflow must produce and validate migrations in both language directions.",
+      "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+      "completion_signal": "Controlled Python-to-TypeScript and TypeScript-to-Python cases complete paired runs with behavioral checks."
+    },
+    {
+      "goal_id": "G5",
+      "title": "Traceable evaluation and external readiness",
+      "rationale": "Results need complete cost and failure accounting before testing the owner's repositories.",
+      "sdd_reference": ".docs/base.md#observability-telemetry--evaluation-metrics",
+      "completion_signal": "Evaluate reports comparable pairs, flags incomplete runs, and preserves logs and generated artifacts."
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "T1.1",
+      "goal_id": "G1",
+      "title": "Package the Python CLI",
+      "rationale": "Establish one command surface for the three strict stages.",
+      "sdd_reference": ".docs/base.md#strict-cli-stages",
+      "files": [
+        "pyproject.toml",
+        "src/deterministic/__init__.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [],
+      "parallel_group": null,
+      "acceptance_test": "uv run deterministic --help lists ingest, migrate, evaluate",
+      "sdd_snippet": "The CLI exposes ingest, migrate, and evaluate as separate stages."
+    },
+    {
+      "task_id": "T1.2",
+      "goal_id": "G1",
+      "title": "Build the non-root runtime image",
+      "rationale": "Provide reproducible Python and TypeScript tooling with writable runtime paths.",
+      "sdd_reference": ".docs/base.md#container-and-runtime-storage",
+      "files": [
+        "Dockerfile",
+        ".dockerignore",
+        ".gitignore"
+      ],
+      "blocked_by": [
+        "T1.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "docker build succeeds and the image runs deterministic --help as non-root",
+      "sdd_snippet": "The Dockerfile pins tooling, creates /data/cache, /data/catalog, /data/runs, and excludes secrets and generated data."
+    },
+    {
+      "task_id": "T1.3",
+      "goal_id": "G1",
+      "title": "Wire persistent local services",
+      "rationale": "The CLI and both databases require stable volumes across rebuilds.",
+      "sdd_reference": ".docs/base.md#container-and-runtime-storage",
+      "files": [
+        "docker-compose.yml",
+        ".env.example"
+      ],
+      "blocked_by": [
+        "T1.2"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "docker compose config succeeds",
+      "sdd_snippet": "Compose runs the CLI, Qdrant, and FalkorDB with persistent storage and runtime credentials."
+    },
+    {
+      "task_id": "T2.1",
+      "goal_id": "G2",
+      "title": "Persist project and run catalog",
+      "rationale": "Only ready snapshots should be selectable, and status must survive container recreation.",
+      "sdd_reference": ".docs/base.md#strict-cli-stages",
+      "files": [
+        "pyproject.toml",
+        "src/deterministic/catalog.py",
+        "tests/test_catalog.py"
+      ],
+      "blocked_by": [
+        "T1.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "A catalog entry persists and ready-only listing excludes incomplete ingestion",
+      "sdd_snippet": "DuckDB at /data/catalog/projects.duckdb holds indexed snapshots and run transitions; the CLI is its sole writer."
+    },
+    {
+      "task_id": "T2.2",
+      "goal_id": "G2",
+      "title": "Load pinned repositories and fixtures",
+      "rationale": "Every case needs a recorded immutable source revision.",
+      "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+      "files": [
+        "src/deterministic/ingestion/repo_loader.py",
+        "src/deterministic/cli.py",
+        "tests/test_repo_loader.py"
+      ],
+      "blocked_by": [
+        "T2.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Ingest records a local fixture content revision and a pinned Git commit",
+      "sdd_snippet": "The loader accepts repository URLs or local paths, records an exact revision, and filters source, manifests, and tests."
+    },
+    {
+      "task_id": "T2.3",
+      "goal_id": "G2",
+      "title": "Extract and cache shared evidence",
+      "rationale": "The arms must reuse identical parsed entities, summaries, and embeddings.",
+      "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+      "files": [
+        "src/deterministic/ingestion/parser.py",
+        "src/deterministic/ingestion/cache.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [
+        "T2.2"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Re-ingesting unchanged input yields the same evidence IDs and cache hits",
+      "sdd_snippet": "Parse Python and TypeScript entities with provenance; cache summaries and embeddings by content and tooling versions."
+    },
+    {
+      "task_id": "T3.1",
+      "goal_id": "G3",
+      "title": "Define the memory adapter",
+      "rationale": "The workflow must use the same interface and evidence budget in both arms.",
+      "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+      "files": [
+        "src/deterministic/memory/base.py"
+      ],
+      "blocked_by": [
+        "T2.3"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Adapter contract checks IDs, provenance, budget, and persistence results",
+      "sdd_snippet": "Agents use MemoryAdapter retrieve_context and persist_artifact without knowing the backing store."
+    },
+    {
+      "task_id": "T3.2",
+      "goal_id": "G3",
+      "title": "Implement Qdrant baseline",
+      "rationale": "The vector arm must be a credible baseline with metadata and runtime feedback.",
+      "sdd_reference": ".docs/base.md#entrypoint-a-run_vector_pipeline-baseline--vectorrag",
+      "files": [
+        "src/deterministic/memory/vector_memory.py"
+      ],
+      "blocked_by": [
+        "T3.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "An isolated collection retrieves and persists evidence and artifacts under the shared budget",
+      "sdd_snippet": "Qdrant indexes the shared evidence and later artifacts with stable IDs and metadata filters."
+    },
+    {
+      "task_id": "T3.3",
+      "goal_id": "G3",
+      "title": "Implement FalkorDB graph arm",
+      "rationale": "The graph arm needs provenance-backed edges and bounded traversal.",
+      "sdd_reference": ".docs/base.md#entrypoint-b-run_graph_pipeline-experimental--graphrag",
+      "files": [
+        "src/deterministic/memory/graph_memory.py"
+      ],
+      "blocked_by": [
+        "T3.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "An isolated graph retrieves bounded linked evidence and persists task and validation nodes",
+      "sdd_snippet": "FalkorDB stores the same base entities and substantiated directed relations, with one graph per run."
+    },
+    {
+      "task_id": "T4.1",
+      "goal_id": "G4",
+      "title": "Build the shared migration state machine",
+      "rationale": "Only the memory adapter may differ between paired runs.",
+      "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+      "files": [
+        "src/deterministic/agents/graph.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [
+        "T3.2",
+        "T3.3"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "The same case launches both isolated arms with a common pair ID",
+      "sdd_snippet": "Understanding, planning, building, and validation share one workflow and fixed retry cap."
+    },
+    {
+      "task_id": "T4.2",
+      "goal_id": "G4",
+      "title": "Implement agent steps",
+      "rationale": "Context packs, tasks, and migrated code must retain source evidence and run provenance.",
+      "sdd_reference": ".docs/base.md#agent-roles--responsibilities",
+      "files": [
+        "src/deterministic/agents/understanding.py",
+        "src/deterministic/agents/planner.py",
+        "src/deterministic/agents/builder.py"
+      ],
+      "blocked_by": [
+        "T4.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "A controlled case produces a cited context pack, ordered tasks, and target code",
+      "sdd_snippet": "Agents build cited Context Packs, ordered Migration Tasks, and generated target files via MemoryAdapter."
+    },
+    {
+      "task_id": "T4.3",
+      "goal_id": "G4",
+      "title": "Validate both controlled directions",
+      "rationale": "Syntax alone cannot establish cross-language migration correctness.",
+      "sdd_reference": ".docs/base.md#prototype-scope-guardrails-kiss-constraints",
+      "files": [
+        "src/deterministic/agents/validator.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [
+        "T4.2"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Both controlled directions compile and pass predefined executable behavioral tests",
+      "sdd_snippet": "Validation checks compile/import/contracts and executable behavior, with bounded retries and failure feedback."
+    },
+    {
+      "task_id": "T5.1",
+      "goal_id": "G5",
+      "title": "Record complete run telemetry",
+      "rationale": "Costs, retrieval, failures, and artifacts must be auditable.",
+      "sdd_reference": ".docs/base.md#observability-telemetry--evaluation-metrics",
+      "files": [
+        "src/deterministic/telemetry/logger.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [
+        "T4.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Every run writes a manifest and valid JSONL with IDs, timings, tokens, costs, and validation events",
+      "sdd_snippet": "Each run writes metrics.jsonl, code, validator output, run settings, and complete cost accounting."
+    },
+    {
+      "task_id": "T5.2",
+      "goal_id": "G5",
+      "title": "Compare and report paired runs",
+      "rationale": "Evaluation must distinguish valid pairs from missing or incomplete runs.",
+      "sdd_reference": ".docs/base.md#strict-cli-stages",
+      "files": [
+        "src/deterministic/telemetry/evaluator.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [
+        "T4.3",
+        "T5.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Evaluate reports each completed run, paired deltas, and incomplete-run exclusions",
+      "sdd_snippet": "Evaluate reads DuckDB, manifests, JSONL, validation, and artifacts; groups by revision and direction."
+    }
+  ],
+  "topological_order": [
+    "T1.1",
+    "T1.2",
+    "T1.3",
+    "T2.1",
+    "T2.2",
+    "T2.3",
+    "T3.1",
+    "T3.2",
+    "T3.3",
+    "T4.1",
+    "T4.2",
+    "T4.3",
+    "T5.1",
+    "T5.2"
+  ],
+  "validation_passed": true
+}

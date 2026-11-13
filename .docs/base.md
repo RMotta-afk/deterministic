@@ -1,0 +1,318 @@
+# deterministic — Context Pack and Architectural Specification
+
+## 1. Academic & Project Overview
+
+* **Project Name:** `deterministic`
+
+* **Academic Context:** Undergraduate Capstone Thesis (TCC) in Computer Engineering
+
+* **Thesis Title:** *Structuring Deterministic Memory in Non-Deterministic Systems: A Comparative Analysis of GraphRAG and VectorRAG in Multi-Agent Orchestration.*
+
+* **Core Hypothesis:** In iterative code migration, explicit relational memory may improve correctness, retrieval quality, and token efficiency over a strong vector-memory baseline at a comparable operating cost. The experiment tests this claim; a negative or mixed result is valid.
+
+* **Prototype Philosophy:** **Strict Simplicity & Controlled Isolation.** This is an experimental benchmark prototype. Within a paired case, models, prompts, parsers, shared evidence, validation, and workflow are held constant. The independent variable is memory representation and retrieval (`VectorMemory` vs. `GraphMemory`); differences in setup and runtime cost are measured.
+
+---
+
+## 2. System Architecture & Dual Entrypoints
+
+The system ingests a pinned source repository or controlled local fixture and executes the same code migration workflow through one of two isolated memory entrypoints.
+
+### Initial Language Scope
+
+The first prototype ingests **Python and TypeScript** repositories and tests migration in both directions: **Python → TypeScript** and **TypeScript → Python**. Each benchmark case has one source language, one target language, a pinned repository revision, and an explicit target runtime/toolchain. Mixed-language repositories and additional source or target languages are outside the first benchmark.
+
+The shared parser extracts language-neutral entities and relations while retaining source locations, original signatures, imports, types, and code snippets. Context Packs explain those facts in natural language for the agents, but remain linked to the source evidence. Natural-language summaries are an aid to retrieval and planning, not a lossless intermediate representation of program behavior.
+
+Both memory entrypoints receive the same parsed entities, summaries, embeddings, migration direction, and validation fixtures for a given case. Benchmark results are compared **within each direction** before combining results across directions.
+
+Start with controlled examples that use a deliberately restricted subset of each language. Pin the source revision, target runtime, dependency versions, supported constructs, and executable behavioral tests for each case. After the pipeline runs end to end and the measurements are trustworthy, use two small repositories from the project owner's GitHub as external proof-of-concept cases. Select and pin those repositories then; do not tune the initial benchmark on them while claiming they are independent validation cases.
+
+### Fair Paired Comparison
+
+For every case, run both memory arms with the same source evidence and cached evidence summaries, embedding model, agent workflow, model version, prompts, generation settings, tools, task-ordering policy, validation fixtures, retry cap, and stopping rules. Each arm may generate different Context Packs and tasks as a result of retrieval; preserve those outputs for comparison. Give each arm the same maximum retrieved-context token budget per step. Run them in fresh, isolated stores and record model responses; equal settings do not make stochastic generation deterministic.
+
+The vector baseline indexes the same entities and intermediate artifacts with stable IDs and metadata. It may use reproducible metadata filters and context packing in addition to similarity search. The graph arm uses explicit, substantiated edges and bounded traversal. Both arms can persist and retrieve tasks, artifacts, validation feedback, and status. The comparison tests memory representation and retrieval, rather than withholding useful evidence or feedback from one arm.
+
+Account for ingestion, embeddings, graph construction, vector indexing, reads, writes, generation, and retries. Report shared preprocessing separately and include it in total system cost. Repeat paired cases to estimate model variance. Compare results within each migration direction before pooling them.
+
+### Shared Pre-Processing & Caching Layer (Cost Control)
+
+Before hitting either memory entrypoint, a shared ingestion pipeline runs once per target repository:
+
+1. **Repo Loader & File Filter:** Loads a pinned revision or fixture and filters relevant source code, configurations, manifests, and tests.
+
+2. **Deterministic Parser & Entity Extractor:** Parses files with language-appropriate syntax tooling to identify contracts, classes, functions, types, imports, source spans, and modules as discrete **Base Entities**. Record uncertain relations instead of inventing edges. Cache any LLM-generated summaries and reuse the exact same output in both arms.
+
+3. **Local Embedding Cache:** Generates embeddings for shared chunks and entities once per content, model, and preprocessing version. The CLI writes them to a persistent cache volume inside the container. Both entrypoints read the same cache. Log this cost even when the cache is reused.
+
+### Container and Runtime Storage
+
+The `Dockerfile` installs and pins the CLI, Python and TypeScript tooling, parsers, and validators; creates writable `/data/cache`, `/data/catalog`, and `/data/runs` directories; and runs the CLI as a non-root user. It must not bake downloaded repositories, generated embeddings, model credentials, or run results into image layers. Docker Compose mounts persistent volumes at those paths and starts the FalkorDB and Qdrant services with their own persistent storage. Rebuilding the image therefore preserves ingestion work and run history.
+
+Use `/data/cache` for pinned repository snapshots, parsed evidence, shared evidence summaries, and embeddings; `/data/catalog/projects.duckdb` for the small local project/run catalog; and `/data/runs/{run_id}` for logs, generated output, validation results, and metrics. Runtime Context Packs and tasks belong to their respective run directories and memory stores. Key cache entries by source revision plus parser, summary, embedding-model, and preprocessing versions. Treat repository content as untrusted input: keep source snapshots separate from output, bound validation subprocesses, and provide credentials at runtime. The CLI is the sole DuckDB catalog writer in the initial prototype.
+
+### Strict CLI Stages
+
+1. **`deterministic ingest <repository-url-or-local-path>`:** Fetch or load the source, resolve and record its exact commit/content revision, filter files, parse the supported source language, generate cited shared evidence summaries and embeddings, and register the ready evidence snapshot in DuckDB. This is the one-command download and ingestion stage. An interrupted ingest remains marked incomplete and can be resumed or rebuilt without presenting a partial project as selectable.
+2. **`deterministic migrate`:** List ready indexed snapshots from DuckDB, let the user select one and a target language, then choose `vector`, `graph`, or a paired `both` run. Pressing Enter starts the workflow from the cached snapshot; it does not silently re-ingest. Each arm builds its own isolated Qdrant collection or FalkorDB graph from the same snapshot, with construction cost recorded. Non-interactive flags for project ID, target, and memory arm support repeatable benchmark runs. Each arm gets a run ID and output directory; `both` also records a shared pair ID.
+3. **`deterministic evaluate`:** Read the catalog and all completed run manifests, metrics JSONL files, validation results, and generated artifacts. Produce a per-run report and paired VectorMemory/GraphMemory comparisons grouped by project revision and migration direction. Flag missing, incomplete, or incomparable runs instead of silently including them in an aggregate.
+
+Every stage emits human-readable progress and structured JSONL events with timestamps, stage, project ID, operation or run ID, source revision, settings, cache hits, errors, and artifact paths. Each ingest operation and migration run has its own log and manifest under `/data/runs/`. Record status transitions in DuckDB so `ingest` and `migrate` can show what is ready, running, failed, or complete. Run one catalog-writing CLI process at a time in the first prototype. Do not store secrets in logs.
+
+---
+
+### Entrypoint A: `run_vector_pipeline` (Baseline — VectorRAG)
+
+* **Storage Engine:** Qdrant (isolated collection/namespace)
+
+* **Ingestion Behavior:**
+
+  * Loads cached embeddings and entity chunks into the Vector DB.
+
+  * Indexes the shared entities and artifacts with stable IDs and metadata; similarity search may be combined with documented metadata filters.
+
+* **Runtime Memory Behavior:**
+
+  * Context Packs, Migration Tasks, generated artifacts, and validation feedback are persisted as retrievable records with IDs, provenance, and status. They are not connected by graph edges.
+
+  * Retrieval uses a documented similarity, metadata-filtering, and context-packing strategy within the same token budget as GraphMemory.
+
+### Entrypoint B: `run_graph_pipeline` (Experimental — GraphRAG)
+
+* **Storage Engine:** FalkorDB (one isolated graph per run).
+
+* **Ingestion Behavior:**
+
+  * Ingests the exact same Base Entities and cached embeddings from the shared layer.
+
+  * Establishes substantiated directed relationships (`IMPORTS`, `CALLS`, `INHERITS_FROM`, `IMPLEMENTS_CONTRACT`, `DEPENDS_ON`) between entities, with provenance for each edge.
+
+* **Runtime Memory Behavior:**
+
+  * Intermediate agent outputs (Context Packs, Migration Tasks, Validation Logs) are dynamically written back into the graph as first-class nodes (`TaskNode`, `ContextSubgraph`, `MigrationArtifact`) and linked directly to the affected `Entity` nodes (`MIGRATES`, `VALIDATES`, `BLOCKS`).
+
+  * Retrieval combines a documented entry-point strategy with bounded graph traversal. It returns a context pack within the shared token budget and records which nodes and edges supported the result.
+
+---
+
+## 3. Standardized Multi-Agent Workflow
+
+Both entrypoints execute the exact same LangGraph state machine. Agents interact with memory solely through an abstract `MemoryAdapter` interface (`retrieve_context()`, `persist_artifact()`), remaining agnostic to whether Vector or Graph is running underneath.
+
+```text
+
+[Pinned repository / controlled fixture]
+
+      │
+
+      ▼
+
+[Ingest: evidence cache + DuckDB catalog]
+
+      │
+
+      ├──► (Migrate: Qdrant run) ──────┐
+
+      └──► (Migrate: FalkorDB run) ────┤
+
+                                       ▼
+
+                        ┌─────────────────────────────┐
+
+                        │  1. Understanding Agent     │
+
+                        │  (Builds Context Packs)     │
+
+                        └──────────────┬──────────────┘
+
+                                       ▼
+
+                        ┌─────────────────────────────┐
+
+                        │  2. Task Planner Agent      │
+
+                        │  (Creates Migration Tasks)  │
+
+                        │  *Graph: Links Tasks->Nodes │
+
+                        └──────────────┬──────────────┘
+
+                                       ▼
+
+                        ┌─────────────────────────────┐
+
+                        │  3. Builder Agent           │◄───┐
+
+                        │  (Generates Migrated Code)  │    │
+
+                        └──────────────┬──────────────┘    │
+
+                                       ▼                   │ (Retry Loop
+
+                        ┌─────────────────────────────┐    │  on Failure)
+
+                        │  4. Validator & Checker     │────┘
+
+                        │  (Compile/Behavioral Tests) │
+
+                        └──────────────┬──────────────┘
+
+                                       ▼
+
+                        [Migrated Output Repository]
+
+                                       │
+
+                                       ▼
+
+                        [Run logs + metrics JSONL]
+
+                                       │
+
+                                       ▼
+
+                        [Evaluate: paired report]
+
+```
+
+### Agent Roles & Responsibilities
+
+1. **Understanding Agent (Analyst):**
+
+   * Queries the memory layer for core entities and architectural boundaries.
+
+   * Produces a structured Context Pack summarizing the repository's domain, entrypoints, and critical contracts, with links to source evidence.
+
+2. **Task Planner Agent (Decomposer):**
+
+   * Consumes the Context Pack and queries entity dependencies to break the migration into ordered, testable Migration Tasks.
+
+   * **Architectural Divergence Point:** Both arms persist generated tasks. `GraphMemory` also links them to substantiated `Entity` and `Contract` nodes; `VectorMemory` retains their IDs and metadata for retrieval.
+
+3. **Builder Agent (Executor):**
+
+   * Iterates through the Migration Tasks sequentially.
+
+   * Queries `MemoryAdapter` for the required context of task $T_i$, writes the migrated code file, and updates the target output repository.
+
+4. **Validator & Checker Agent (Reviewer):**
+
+   * Checks syntax/compile validity, import resolution, declared contracts, and predefined executable behavioral tests.
+
+   * If validation fails, it emits structured error feedback and routes execution back to the Builder Agent (up to a fixed retry cap).
+
+   * In both arms, validation results update task status and prevent downstream tasks from treating broken dependencies as verified. `GraphMemory` also links results to the affected nodes.
+
+---
+
+## 4. Observability, Telemetry & Evaluation Metrics
+
+To test the thesis, every agent step and database query writes structured telemetry to `/data/runs/{run_id}/metrics.jsonl`, alongside generated code and validator output for failure review.
+
+| Metric Category | Metric Name | Operational Definition & How It Is Measured | Research Purpose |
+
+| :--- | :--- | :--- | :--- |
+
+| **Context Efficiency** | **Prompt Token Growth** | Input and retrieved-context tokens at each step, under an equal per-step context budget. | Tests whether either strategy uses fewer tokens over time. |
+
+| **Context Quality** | **Evidence Recall and Precision** | Compare retrieved entities/files with a small manually reviewed relevance set. Generated-code references are a secondary proxy. | Measures whether useful evidence was retrieved without excessive noise. |
+
+| **Memory Drift** | **Contract Error Rate** | Broken imports, unresolved references, incompatible signatures, and violated declared constraints per task. | Tests whether errors increase over task order. |
+
+| **Self-Correction** | **Retry Loop Frequency** | Retry cycles per task, including failed cases in the denominator. | Tests whether either memory strategy reduces rework. |
+
+| **FinOps & Cost** | **Cost per Successful Case ($)** | Report shared ingestion, embeddings, indexing/graph construction, retrieval, writes, generation, and retries separately and in total. | Tests whether any quality gain justifies total system cost. |
+
+| **Performance** | **Retrieval & End-to-End Latency (ms)** | Wall-clock time spent in `MemoryAdapter.retrieve_context()` and `persist_artifact()` vs. LLM generation time. | Captures the honest engineering trade-off: Graph traversal/write overhead vs. fast cosine search. |
+
+| **End-to-End Success** | **Behavioral Success Rate (%)** | Percentage of cases passing predefined executable behavioral tests within the retry budget; report syntax and import failures separately. | Measures migration correctness beyond parseable code. |
+
+---
+
+## 5. Proposed Minimal Directory Structure
+
+Designed for rapid execution and clean separation of concerns:
+
+```text
+
+deterministic/
+
+├── .docs/base.md                # This architectural specification
+
+├── Dockerfile                   # Pinned CLI/runtime tooling and writable data paths
+
+├── .dockerignore                # Exclude runtime data and secrets from image context
+
+├── .env.example                 # API keys, FalkorDB and Qdrant connections
+
+├── docker-compose.yml           # CLI, FalkorDB, Qdrant, persistent volumes
+
+├── pyproject.toml               # uv / Python dependencies
+
+├── data/                        # Mounted runtime cache, DuckDB catalog, run outputs
+
+├── src/
+
+│   ├── cli.py                   # `ingest`, `migrate`, `evaluate`
+
+│   ├── catalog.py               # DuckDB project and run catalog
+
+│   ├── ingestion/
+
+│   │   ├── repo_loader.py       # Git clone & file filtering
+
+│   │   ├── parser.py            # Deterministic entity & contract extraction
+
+│   │   └── cache.py             # Shared embedding cache manager
+
+│   ├── memory/
+
+│   │   ├── base.py              # Abstract `MemoryAdapter` protocol
+
+│   │   ├── vector_memory.py     # Baseline VectorRAG implementation
+
+│   │   └── graph_memory.py      # Experimental GraphRAG implementation
+
+│   ├── agents/
+
+│   │   ├── graph.py             # Shared LangGraph workflow state machine
+
+│   │   ├── understanding.py     # Agent 1: Context Pack builder
+
+│   │   ├── planner.py           # Agent 2: Task generator & linker
+
+│   │   ├── builder.py           # Agent 3: Code migration executor
+
+│   │   └── validator.py         # Agent 4: Contract & syntax checker
+
+│   └── telemetry/
+
+│       ├── logger.py            # Decorator for tokens, cost, and latency
+
+│       └── evaluator.py         # Script to compare Vector vs. Graph JSONL runs
+
+```
+
+---
+
+## 6. Prototype Scope Guardrails (KISS Constraints)
+
+1. **Target Repo Size:** Benchmark on small-to-medium Python and TypeScript codebases (initial target: 15–30 interconnected files, ~2,000–5,000 LOC), with cases in both migration directions. Repository size, task count, and runtime are targets to verify in pilot runs, not assumed guarantees.
+
+2. **Behavioral Validation:** Use syntax/compile, import resolution, and static checks where applicable, then run predefined executable tests. Signature parity alone does not establish equivalent behavior across Python and TypeScript. An LLM contract check can add diagnostic evidence but does not decide success.
+
+3. **Strict Isolation:** Never allow `vector_memory.py` and `graph_memory.py` to share runtime state. Each paired run initializes clean namespaces, reads the same versioned ingestion cache, runs the shared workflow, and writes isolated `metrics.jsonl` and generated artifacts.
+
+4. **External Proof of Concept:** Use the owner's two small GitHub repositories only after controlled cases pass end to end and telemetry is verified. Pin commits and record any unsupported language features or dependencies before migration.
+
+## 7. Decisions to Pin Before the First Benchmark
+
+The architecture and workflow are set. The first implementation slice must record these concrete choices in its run configuration before results are compared:
+
+1. Supported Python and TypeScript constructs and one controlled fixture in each migration direction, with expected behavioral tests.
+2. Exact Python, TypeScript, parser, model, embedding model, Qdrant, and FalkorDB versions.
+3. Context token budget, retrieval and packing rules, retry cap, model settings, and repeat count.
+4. Run manifest and JSONL event schemas, cache version keys, and the rule for matching comparable vector/graph pairs.
+
+Keep the two owner GitHub repositories outside this initial fixture set. They are selected only after the controlled pipeline and evaluation pass their end-to-end checks.

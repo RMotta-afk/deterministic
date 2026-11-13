@@ -1,0 +1,17 @@
+{
+  "task_id": "T3.2",
+  "goal_id": "G3",
+  "title": "Implement Qdrant baseline",
+  "rationale": "The vector arm must be a credible baseline with metadata and runtime feedback.",
+  "sdd_reference": ".docs/base.md#entrypoint-a-run_vector_pipeline-baseline--vectorrag",
+  "files": [
+    "src/deterministic/memory/vector_memory.py"
+  ],
+  "blocked_by": [
+    "T3.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "An isolated collection retrieves and persists evidence and artifacts under the shared budget",
+  "sdd_snippet": "Qdrant indexes the shared evidence and later artifacts with stable IDs and metadata filters.",
+  "status": "pending"
+}

@@ -1,0 +1,12 @@
+.git
+.venv
+.env
+data
+runs
+.cache
+.context
+__pycache__
+.pytest_cache
+*.pyc
+*.duckdb
+*.duckdb.wal

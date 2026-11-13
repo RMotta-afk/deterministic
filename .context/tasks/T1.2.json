@@ -1,0 +1,19 @@
+{
+  "task_id": "T1.2",
+  "goal_id": "G1",
+  "title": "Build the non-root runtime image",
+  "rationale": "Provide reproducible Python and TypeScript tooling with writable runtime paths.",
+  "sdd_reference": ".docs/base.md#container-and-runtime-storage",
+  "files": [
+    "Dockerfile",
+    ".dockerignore",
+    ".gitignore"
+  ],
+  "blocked_by": [
+    "T1.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "docker build succeeds and the image runs deterministic --help as non-root",
+  "sdd_snippet": "The Dockerfile pins tooling, creates /data/cache, /data/catalog, /data/runs, and excludes secrets and generated data.",
+  "status": "completed"
+}

@@ -1,0 +1,19 @@
+{
+  "task_id": "T4.1",
+  "goal_id": "G4",
+  "title": "Build the shared migration state machine",
+  "rationale": "Only the memory adapter may differ between paired runs.",
+  "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+  "files": [
+    "src/deterministic/agents/graph.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [
+    "T3.2",
+    "T3.3"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "The same case launches both isolated arms with a common pair ID",
+  "sdd_snippet": "Understanding, planning, building, and validation share one workflow and fixed retry cap.",
+  "status": "pending"
+}

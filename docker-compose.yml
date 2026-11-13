@@ -1,0 +1,34 @@
+services:
+  cli:
+    build: .
+    depends_on:
+      - qdrant
+      - falkordb
+    environment:
+      DETERMINISTIC_DATA_DIR: /data
+      QDRANT_URL: http://qdrant:6333
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: "6379"
+    volumes:
+      - cache:/data/cache
+      - catalog:/data/catalog
+      - runs:/data/runs
+
+  qdrant:
+    image: qdrant/qdrant:latest # Pin an exact release before benchmark runs.
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  falkordb:
+    image: falkordb/falkordb-server:latest # Pin an exact release before benchmark runs.
+    environment:
+      REDIS_ARGS: --appendonly yes
+    volumes:
+      - falkordb_data:/data
+
+volumes:
+  cache:
+  catalog:
+  runs:
+  qdrant_data:
+  falkordb_data:

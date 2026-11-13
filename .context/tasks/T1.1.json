@@ -1,0 +1,17 @@
+{
+  "task_id": "T1.1",
+  "goal_id": "G1",
+  "title": "Package the Python CLI",
+  "rationale": "Establish one command surface for the three strict stages.",
+  "sdd_reference": ".docs/base.md#strict-cli-stages",
+  "files": [
+    "pyproject.toml",
+    "src/deterministic/__init__.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [],
+  "parallel_group": null,
+  "acceptance_test": "uv run deterministic --help lists ingest, migrate, evaluate",
+  "sdd_snippet": "The CLI exposes ingest, migrate, and evaluate as separate stages.",
+  "status": "completed"
+}
