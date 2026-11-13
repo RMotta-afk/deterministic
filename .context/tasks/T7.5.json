@@ -1,0 +1,19 @@
+{
+  "task_id": "T7.5",
+  "goal_id": "G7",
+  "title": "Execute repeatable Editor proof of concept",
+  "rationale": "Run the pinned case in both isolated stores and document exact commands and limits.",
+  "sdd_reference": ".docs/base.md#prototype-scope-guardrails-kiss-constraints",
+  "files": [
+    "README.md",
+    ".docs/base.md",
+    ".env.example"
+  ],
+  "blocked_by": [
+    "T7.4"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Live-model Editor pairs run with pinned summaries/embeddings and evaluate writes complete and failed outcomes.",
+  "sdd_snippet": "One pinned repository is a feasibility proof; report model, versions, settings, and repeats.",
+  "status": "in_progress"
+}

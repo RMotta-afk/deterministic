@@ -1,0 +1,20 @@
+{
+  "task_id": "T6.5",
+  "goal_id": "G6",
+  "title": "Generate runnable Editor TypeScript backend",
+  "rationale": "Create a target Node service from retrieved Python backend evidence.",
+  "sdd_reference": ".docs/base.md#agent-roles--responsibilities",
+  "files": [
+    "src/deterministic/agents/builder.py",
+    "src/deterministic/agents/planner.py",
+    "tests/test_editor_builder.py"
+  ],
+  "blocked_by": [
+    "T6.4",
+    "T1.5"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Editor output compiles and runs its HTTP contract harness.",
+  "sdd_snippet": "Builder writes migrated code files for ordered tasks; validator checks import and behavior.",
+  "status": "completed"
+}

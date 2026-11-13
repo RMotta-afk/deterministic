@@ -1,0 +1,19 @@
+{
+  "task_id": "T7.1",
+  "goal_id": "G7",
+  "title": "Make both memory arms retrieve runtime feedback",
+  "rationale": "Index tasks, artifacts, and validation feedback in Qdrant and FalkorDB.",
+  "sdd_reference": ".docs/base.md#fair-paired-comparison",
+  "files": [
+    "src/deterministic/memory/vector_memory.py",
+    "src/deterministic/memory/graph_memory.py",
+    "tests/support/run_editor_smoke.py"
+  ],
+  "blocked_by": [
+    "T6.5"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Both live stores recover source evidence and runtime feedback under the same budget.",
+  "sdd_snippet": "Both arms receive the same evidence and may differ only in representation and retrieval.",
+  "status": "completed"
+}

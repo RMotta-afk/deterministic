@@ -13,5 +13,5 @@
   "parallel_group": null,
   "acceptance_test": "Invalid persisted evidence is rejected before memory indexing",
   "sdd_snippet": "Entities, relations, and shared summaries use strict versioned Pydantic models at storage boundaries.",
-  "status": "pending"
+  "status": "completed"
 }

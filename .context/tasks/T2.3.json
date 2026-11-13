@@ -15,5 +15,5 @@
   "parallel_group": null,
   "acceptance_test": "Re-ingesting unchanged input yields the same evidence IDs and cache hits",
   "sdd_snippet": "Parse Python and TypeScript entities with provenance; cache summaries and embeddings by content and tooling versions.",
-  "status": "pending"
+  "status": "completed"
 }

@@ -1,0 +1,19 @@
+{
+  "task_id": "T7.2",
+  "goal_id": "G7",
+  "title": "Condition the shared workflow on retrieved context",
+  "rationale": "Use bounded memory context for understanding, planning, generation, and validation retries.",
+  "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+  "files": [
+    "src/deterministic/agents/graph.py",
+    "src/deterministic/agents/understanding.py",
+    "tests/support/run_editor_smoke.py"
+  ],
+  "blocked_by": [
+    "T7.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "A paired run records context IDs per task and bounded retry feedback.",
+  "sdd_snippet": "Agents query MemoryAdapter for context and route validation feedback to bounded retries.",
+  "status": "completed"
+}

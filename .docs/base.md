@@ -20,21 +20,29 @@ The system ingests a pinned source repository or controlled local fixture and ex
 
 ### Initial Language Scope
 
-The first prototype ingests **Python and TypeScript** repositories and tests migration in both directions: **Python → TypeScript** and **TypeScript → Python**. Each benchmark case has one source language, one target language, a pinned repository revision, and an explicit target runtime/toolchain. Mixed-language repositories and additional source or target languages are outside the first benchmark.
+The first scored proof of concept migrates the pinned **Python `project-editor` backend to TypeScript**. The CLI and controlled fixtures retain both language directions for later work, but `project-intaker` is not part of this first result. Repositories may contain other languages in preserved frontends or contract fixtures; those files are not migration targets.
 
 The shared parser extracts language-neutral entities and relations while retaining source locations, original signatures, imports, types, and code snippets. Context Packs explain those facts in natural language for the agents, but remain linked to the source evidence. Natural-language summaries are an aid to retrieval and planning, not a lossless intermediate representation of program behavior.
 
 Both memory entrypoints receive the same parsed entities, summaries, embeddings, migration direction, and validation fixtures for a given case. Benchmark results are compared **within each direction** before combining results across directions.
 
-Start with controlled examples that use a deliberately restricted subset of each language. Pin the source revision, target runtime, dependency versions, supported constructs, and executable behavioral tests for each case. After the pipeline runs end to end and the measurements are trustworthy, use two small repositories from the project owner's GitHub as external proof-of-concept cases. Select and pin those repositories then; do not tune the initial benchmark on them while claiming they are independent validation cases.
+Keep the small controlled examples and fixed-response Editor mock as smoke tests. They are not thesis evidence. The first scored input is the pinned `fixtures/project-editor` Git submodule. `fixtures/project-intaker` remains available for later replication. Report the submodule commit, scoped file list, target runtime, dependency versions, and executable behavioral checks for every run.
+
+### Pinned Repository Boundaries
+
+`project-intaker` is the **TypeScript → Python** case. Migrate backend behavior from `app/api`, `src/server`, and `src/ai`, excluding test files and evaluation-only material. Keep the Next.js pages and components. Treat `src/contracts` and Prisma as interface and storage evidence. The migrated backend must preserve the existing `/api` URL surface, response shapes and status codes, persistence behavior, and worker lifecycle; thin Next.js route handlers may forward requests to the new Python service. The UI remains in Next.js.
+
+`project-editor` is the **Python → TypeScript** case. Migrate `backend/project_editor`. Keep the React/Vite frontend and the upstream records service. Treat `frontend/src/api.ts`, `frontend/src/contracts.ts`, backend tests, and the upstream API as contract evidence. The migrated backend must preserve the `/api/projects` routes, conflict and uncertain-write behavior, and server-side ownership of the upstream API key. Frontend code and upstream behavior are not migration targets.
+
+Compare vector and graph arms **within the pinned Editor revision and Python-to-TypeScript direction**. One repository establishes feasibility only; it cannot support broad claims about languages or graph memory. Backend correctness includes the upstream connection and browser-facing contract, not merely generated files compiling.
 
 ### Fair Paired Comparison
 
-For every case, run both memory arms with the same source evidence and cached evidence summaries, embedding model, agent workflow, model version, prompts, generation settings, tools, task-ordering policy, validation fixtures, retry cap, and stopping rules. Each arm may generate different Context Packs and tasks as a result of retrieval; preserve those outputs for comparison. Give each arm the same maximum retrieved-context token budget per step. Run them in fresh, isolated stores and record model responses; equal settings do not make stochastic generation deterministic.
+For every case, run both memory arms with the same source evidence and cached evidence summaries, embedding model, agent workflow, model version, prompts, generation settings, tools, task-ordering policy, validation fixtures, retry cap, and stopping rules. Each arm may generate different Context Packs and tasks as a result of retrieval; preserve those outputs for comparison. Give each arm the same maximum retrieved-context budget per step. The first POC uses a whitespace-word packing estimate; report actual provider prompt tokens separately, and do not call the estimate an exact tokenizer count. Run arms in fresh, isolated stores and record model responses; equal settings do not make stochastic generation deterministic.
 
 The vector baseline indexes the same entities and intermediate artifacts with stable IDs and metadata. It may use reproducible metadata filters and context packing in addition to similarity search. The graph arm uses explicit, substantiated edges and bounded traversal. Both arms can persist and retrieve tasks, artifacts, validation feedback, and status. The comparison tests memory representation and retrieval, rather than withholding useful evidence or feedback from one arm.
 
-Account for ingestion, embeddings, graph construction, vector indexing, reads, writes, generation, and retries. Report shared preprocessing separately and include it in total system cost. Repeat paired cases to estimate model variance. Compare results within each migration direction before pooling them.
+Account for ingestion, embeddings, graph construction, vector indexing, reads, writes, generation, and retries. Report shared preprocessing separately. Provider USD cost is reported only when explicit input, output, and embedding rates are configured; self-hosted database infrastructure has latency and write counts but no invented USD price. Repeat paired Editor runs to estimate model variance.
 
 ### Shared Pre-Processing & Caching Layer (Cost Control)
 
@@ -306,13 +314,13 @@ deterministic/
 
 ## 6. Prototype Scope Guardrails (KISS Constraints)
 
-1. **Target Repo Size:** Benchmark on small-to-medium Python and TypeScript codebases (initial target: 15–30 interconnected files, ~2,000–5,000 LOC), with cases in both migration directions. Repository size, task count, and runtime are targets to verify in pilot runs, not assumed guarantees.
+1. **Measured Case Size:** The first case is `project-editor`: 5 Python backend source files (~339 lines) at its pinned revision. This is a feasibility proof, not evidence of broad scalability or a language-direction effect. Keep `project-intaker` for later replication.
 
 2. **Behavioral Validation:** Use syntax/compile, import resolution, and static checks where applicable, then run predefined executable tests. Signature parity alone does not establish equivalent behavior across Python and TypeScript. An LLM contract check can add diagnostic evidence but does not decide success.
 
 3. **Strict Isolation:** Never allow `vector_memory.py` and `graph_memory.py` to share runtime state. Each paired run initializes clean namespaces, reads the same versioned ingestion cache, runs the shared workflow, and writes isolated `metrics.jsonl` and generated artifacts.
 
-4. **External Proof of Concept:** Use the owner's two small GitHub repositories only after controlled cases pass end to end and telemetry is verified. Pin commits and record any unsupported language features or dependencies before migration.
+4. **Real Repository Benchmark:** Score `project-editor` only after the fixed-response smoke run and telemetry pass. Ingest only its declared backend and contract paths, preserve frontend and upstream code, and record unsupported language features or dependencies. A single generated `server.ts` is the minimal target, so this POC measures one backend migration rather than long-horizon task drift.
 
 ## 7. Decisions to Pin Before the First Benchmark
 
@@ -323,4 +331,4 @@ The architecture and workflow are set. The first implementation slice must recor
 3. Context token budget, retrieval and packing rules, retry cap, model settings, and repeat count.
 4. Run manifest and JSONL event schemas, cache version keys, and the rule for matching comparable vector/graph pairs.
 
-Keep the two owner GitHub repositories outside this initial fixture set. They are selected only after the controlled pipeline and evaluation pass their end-to-end checks.
+Keep the small fixtures and fixed-response Editor run for pipeline smoke checks. Only live-model Editor runs with the pinned repository, shared summaries and embeddings, and executable contract validation are scored as POC evidence.

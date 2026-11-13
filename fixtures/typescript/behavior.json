@@ -1,0 +1,4 @@
+[
+  {"function": "add", "arguments": [2, 3], "expected": 5},
+  {"function": "add", "arguments": [-2, 7], "expected": 5}
+]

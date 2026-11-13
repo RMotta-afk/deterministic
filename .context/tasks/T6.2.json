@@ -1,0 +1,18 @@
+{
+  "task_id": "T6.2",
+  "goal_id": "G6",
+  "title": "Plan only backend migration files",
+  "rationale": "Plan only backend migration files so the pinned repositories can serve as honest benchmark cases.",
+  "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+  "files": [
+    "src/deterministic/agents/planner.py",
+    "tests/test_backend_scope.py"
+  ],
+  "blocked_by": [
+    "T6.1"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Planner emits no UI or contract-only migration task while retaining contract evidence for retrieval",
+  "sdd_snippet": "The backend is migrated; preserved frontend and upstream paths remain read-only contract evidence.",
+  "status": "completed"
+}

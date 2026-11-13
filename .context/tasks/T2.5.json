@@ -1,0 +1,19 @@
+{
+  "task_id": "T2.5",
+  "goal_id": "G2",
+  "title": "Cache natural-language summaries and embeddings",
+  "rationale": "Give both arms the same source summaries and model vectors with recorded preprocessing usage.",
+  "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+  "files": [
+    "src/deterministic/agents/model.py",
+    "src/deterministic/ingestion/cache.py",
+    "src/deterministic/ingestion/schemas.py"
+  ],
+  "blocked_by": [
+    "T2.4"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Re-ingestion with the same model IDs hits the cache and returns identical Pydantic evidence.",
+  "sdd_snippet": "Shared summaries and embeddings are cached by revision, parser, and model versions.",
+  "status": "completed"
+}

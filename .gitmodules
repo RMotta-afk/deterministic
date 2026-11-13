@@ -1,0 +1,6 @@
+[submodule "fixtures/project-intaker"]
+	path = fixtures/project-intaker
+	url = https://github.com/RMotta-afk/project-intaker
+[submodule "fixtures/project-editor"]
+	path = fixtures/project-editor
+	url = https://github.com/RMotta-afk/project-editor

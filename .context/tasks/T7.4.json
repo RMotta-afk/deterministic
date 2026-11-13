@@ -1,0 +1,18 @@
+{
+  "task_id": "T7.4",
+  "goal_id": "G7",
+  "title": "Report all paired Editor outcomes",
+  "rationale": "Include failed arms and quality, retrieval, token, and latency measures.",
+  "sdd_reference": ".docs/base.md#observability-telemetry--evaluation-metrics",
+  "files": [
+    "src/deterministic/telemetry/evaluator.py",
+    "tests/test_evaluator.py"
+  ],
+  "blocked_by": [
+    "T7.3"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Evaluation includes failed pairs and measured deltas without zero-cost claims.",
+  "sdd_snippet": "Report behavioral success, context quality, token growth, retries, and end-to-end latency.",
+  "status": "completed"
+}

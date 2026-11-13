@@ -23,6 +23,22 @@ class Project(BaseModel):
     schema_version: Literal[1] = 1
 
 
+class Run(BaseModel):
+    """Validated run row at the DuckDB boundary."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    run_id: str = Field(min_length=1)
+    pair_id: str | None
+    project_id: str = Field(min_length=1)
+    revision: str = Field(min_length=1)
+    direction: str = Field(min_length=1)
+    memory: Literal["vector", "graph"]
+    status: Literal["running", "complete", "failed"]
+    run_path: str = Field(min_length=1)
+    schema_version: Literal[1] = 1
+
+
 class Catalog:
     def __init__(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -40,6 +56,12 @@ class Catalog:
             )
             """
         )
+        self._connection.execute("""CREATE TABLE IF NOT EXISTS runs (
+            run_id VARCHAR PRIMARY KEY, pair_id VARCHAR, project_id VARCHAR NOT NULL,
+            revision VARCHAR NOT NULL, direction VARCHAR NOT NULL, memory VARCHAR NOT NULL,
+            status VARCHAR NOT NULL, run_path VARCHAR NOT NULL,
+            schema_version INTEGER NOT NULL DEFAULT 1
+        )""")
         columns = {
             row[1] for row in self._connection.execute("PRAGMA table_info('projects')").fetchall()
         }
@@ -98,3 +120,45 @@ class Catalog:
             "schema_version",
         )
         return [Project.model_validate(dict(zip(columns, row, strict=True))) for row in rows]
+
+    def record_run(self, run: dict[str, str | None]) -> None:
+        run = Run.model_validate(run).model_dump()
+        self._connection.execute(
+            """INSERT OR REPLACE INTO runs
+            (run_id,pair_id,project_id,revision,direction,memory,status,run_path)
+            VALUES (?,?,?,?,?,?,?,?)""",
+            [
+                run[k]
+                for k in (
+                    "run_id",
+                    "pair_id",
+                    "project_id",
+                    "revision",
+                    "direction",
+                    "memory",
+                    "status",
+                    "run_path",
+                )
+            ],
+        )
+
+    def list_runs(self) -> list[dict[str, str | None]]:
+        cols = (
+            "run_id",
+            "pair_id",
+            "project_id",
+            "revision",
+            "direction",
+            "memory",
+            "status",
+            "run_path",
+        )
+        return [
+            Run.model_validate(dict(zip(cols, row, strict=True))).model_dump(
+                exclude={"schema_version"}
+            )
+            for row in self._connection.execute(
+                "SELECT run_id,pair_id,project_id,revision,direction,memory,status,run_path "
+                "FROM runs ORDER BY run_id"
+            ).fetchall()
+        ]

@@ -13,5 +13,5 @@
   "parallel_group": null,
   "acceptance_test": "Adapter contract checks IDs, provenance, budget, and persistence results",
   "sdd_snippet": "Agents use MemoryAdapter retrieve_context and persist_artifact without knowing the backing store. Adapter inputs and outputs use Pydantic models.",
-  "status": "pending"
+  "status": "completed"
 }

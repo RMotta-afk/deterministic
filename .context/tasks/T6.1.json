@@ -1,0 +1,19 @@
+{
+  "task_id": "T6.1",
+  "goal_id": "G6",
+  "title": "Validate benchmark scope and pinned commits",
+  "rationale": "Validate benchmark scope and pinned commits so the pinned repositories can serve as honest benchmark cases.",
+  "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+  "files": [
+    "src/deterministic/ingestion/schemas.py",
+    "src/deterministic/ingestion/cache.py",
+    "src/deterministic/cli.py"
+  ],
+  "blocked_by": [
+    "T5.2"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Both profiles reject stale commits or missing roots and exclude UI source from ingested evidence",
+  "sdd_snippet": "The scope manifest names pinned commits, migration roots, contract roots, and preserved roots.",
+  "status": "completed"
+}

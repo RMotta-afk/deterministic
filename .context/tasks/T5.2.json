@@ -15,5 +15,5 @@
   "parallel_group": null,
   "acceptance_test": "Evaluate reports each completed run, paired deltas, and incomplete-run exclusions",
   "sdd_snippet": "Evaluate reads DuckDB, manifests, JSONL, validation, and artifacts; groups by revision and direction.",
-  "status": "pending"
+  "status": "completed"
 }

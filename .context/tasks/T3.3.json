@@ -13,5 +13,5 @@
   "parallel_group": null,
   "acceptance_test": "An isolated graph retrieves bounded linked evidence and persists task and validation nodes",
   "sdd_snippet": "FalkorDB stores the same base entities and substantiated directed relations, with one graph per run.",
-  "status": "pending"
+  "status": "completed"
 }

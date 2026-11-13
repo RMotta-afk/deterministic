@@ -13,5 +13,5 @@
   "parallel_group": null,
   "acceptance_test": "An isolated collection retrieves and persists evidence and artifacts under the shared budget",
   "sdd_snippet": "Qdrant indexes the shared evidence and later artifacts with stable IDs and metadata filters.",
-  "status": "pending"
+  "status": "completed"
 }

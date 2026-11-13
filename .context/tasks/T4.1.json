@@ -15,5 +15,5 @@
   "parallel_group": null,
   "acceptance_test": "The same case launches both isolated arms with a common pair ID",
   "sdd_snippet": "Understanding, planning, building, and validation share one workflow and fixed retry cap.",
-  "status": "pending"
+  "status": "completed"
 }

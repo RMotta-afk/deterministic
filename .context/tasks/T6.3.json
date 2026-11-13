@@ -1,0 +1,19 @@
+{
+  "task_id": "T6.3",
+  "goal_id": "G6",
+  "title": "Expose pinned Editor CLI runs",
+  "rationale": "Make the selected Editor snapshot available to migrate by project ID.",
+  "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+  "files": [
+    "src/deterministic/cli.py",
+    "src/deterministic/ingestion/parser.py",
+    "README.md"
+  ],
+  "blocked_by": [
+    "T6.2"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "CLI selects pinned Editor and records its commit, backend sources, and Markdown API contract evidence.",
+  "sdd_snippet": "Submodule revisions and selected paths are recorded in every benchmark run.",
+  "status": "completed"
+}

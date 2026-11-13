@@ -1,0 +1,19 @@
+{
+  "task_id": "T7.3",
+  "goal_id": "G7",
+  "title": "Persist run failures and stage telemetry",
+  "rationale": "Create the run record before work, preserve terminal failures and measure stage costs.",
+  "sdd_reference": ".docs/base.md#strict-cli-stages",
+  "files": [
+    "src/deterministic/cli.py",
+    "src/deterministic/telemetry/logger.py",
+    "tests/test_run_lifecycle.py"
+  ],
+  "blocked_by": [
+    "T7.2"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Injected failure still has a catalog row, manifest, error event, and output path.",
+  "sdd_snippet": "Each migration run has status transitions, JSONL events, and a durable manifest.",
+  "status": "completed"
+}

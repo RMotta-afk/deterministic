@@ -1,7 +1,7 @@
 {
   "mission": {
-    "statement": "Build a containerized Python and TypeScript migration benchmark that ingests once, runs fair Qdrant and FalkorDB memory arms, and evaluates traceable paired results.",
-    "terminal_signal": "Both controlled migration directions complete ingest, paired migrate, and evaluate with behavioral results and reproducible run manifests."
+    "statement": "Run a traceable Python-to-TypeScript project-editor proof of concept through paired Qdrant and FalkorDB memory arms.",
+    "terminal_signal": "A pinned Editor backend migration passes its preserved HTTP and upstream contracts in both arms, and evaluation reports every paired attempt with measured quality, latency, and resource use."
   },
   "goals": [
     {
@@ -38,6 +38,20 @@
       "rationale": "Results need complete cost and failure accounting before testing the owner's repositories.",
       "sdd_reference": ".docs/base.md#observability-telemetry--evaluation-metrics",
       "completion_signal": "Evaluate reports comparable pairs, flags incomplete runs, and preserves logs and generated artifacts."
+    },
+    {
+      "goal_id": "G6",
+      "title": "Prepare the Editor benchmark case",
+      "rationale": "The single proof of concept needs a pinned backend scope and executable contracts.",
+      "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+      "completion_signal": "Editor ingests at its pinned commit and its generated TypeScript API passes the preserved contracts."
+    },
+    {
+      "goal_id": "G7",
+      "title": "Run and evaluate paired Editor migrations",
+      "rationale": "A proof of concept requires comparable memory-conditioned runs with complete failure accounting.",
+      "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+      "completion_signal": "Repeated Editor pairs produce durable manifests and a report covering successes, failures, retrieval, latency, and tokens."
     }
   ],
   "tasks": [
@@ -315,6 +329,222 @@
       "parallel_group": null,
       "acceptance_test": "Invalid persisted evidence is rejected before memory indexing",
       "sdd_snippet": "Entities, relations, and shared summaries use strict versioned Pydantic models at storage boundaries."
+    },
+    {
+      "task_id": "T6.1",
+      "goal_id": "G6",
+      "title": "Validate benchmark scope and pinned commits",
+      "rationale": "Validate benchmark scope and pinned commits so the pinned repositories can serve as honest benchmark cases.",
+      "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+      "files": [
+        "src/deterministic/ingestion/schemas.py",
+        "src/deterministic/ingestion/cache.py",
+        "src/deterministic/cli.py"
+      ],
+      "blocked_by": [
+        "T5.2"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Both profiles reject stale commits or missing roots and exclude UI source from ingested evidence",
+      "sdd_snippet": "The scope manifest names pinned commits, migration roots, contract roots, and preserved roots."
+    },
+    {
+      "task_id": "T6.2",
+      "goal_id": "G6",
+      "title": "Plan only backend migration files",
+      "rationale": "Plan only backend migration files so the pinned repositories can serve as honest benchmark cases.",
+      "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+      "files": [
+        "src/deterministic/agents/planner.py",
+        "tests/test_backend_scope.py"
+      ],
+      "blocked_by": [
+        "T6.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Planner emits no UI or contract-only migration task while retaining contract evidence for retrieval",
+      "sdd_snippet": "The backend is migrated; preserved frontend and upstream paths remain read-only contract evidence."
+    },
+    {
+      "task_id": "T6.3",
+      "goal_id": "G6",
+      "title": "Expose pinned Editor CLI runs",
+      "rationale": "Make the selected Editor snapshot available to migrate by project ID.",
+      "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+      "files": [
+        "src/deterministic/cli.py",
+        "src/deterministic/ingestion/parser.py",
+        "README.md"
+      ],
+      "blocked_by": [
+        "T6.2"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "CLI selects pinned Editor and records its commit, backend sources, and Markdown API contract evidence.",
+      "sdd_snippet": "Submodule revisions and selected paths are recorded in every benchmark run."
+    },
+    {
+      "task_id": "T6.4",
+      "goal_id": "G6",
+      "title": "Build Editor executable contract harness",
+      "rationale": "Use the pinned tests and upstream behavior as the scoring oracle.",
+      "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+      "files": [
+        "src/deterministic/agents/editor_contract.py",
+        "tests/test_editor_contract.py",
+        "tests/support/editor_reference.ts"
+      ],
+      "blocked_by": [
+        "T6.3",
+        "T2.5"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Generated service passes GET, PUT, 404, 409, 502, 504 and key-boundary HTTP cases.",
+      "sdd_snippet": "Editor backend migrates; frontend and upstream remain in place as contract evidence."
+    },
+    {
+      "task_id": "T6.5",
+      "goal_id": "G6",
+      "title": "Generate runnable Editor TypeScript backend",
+      "rationale": "Create a target Node service from retrieved Python backend evidence.",
+      "sdd_reference": ".docs/base.md#agent-roles--responsibilities",
+      "files": [
+        "src/deterministic/agents/builder.py",
+        "src/deterministic/agents/planner.py",
+        "tests/test_editor_builder.py"
+      ],
+      "blocked_by": [
+        "T6.4",
+        "T1.5"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Editor output compiles and runs its HTTP contract harness.",
+      "sdd_snippet": "Builder writes migrated code files for ordered tasks; validator checks import and behavior."
+    },
+    {
+      "task_id": "T7.1",
+      "goal_id": "G7",
+      "title": "Make both memory arms retrieve runtime feedback",
+      "rationale": "Index tasks, artifacts, and validation feedback in Qdrant and FalkorDB.",
+      "sdd_reference": ".docs/base.md#fair-paired-comparison",
+      "files": [
+        "src/deterministic/memory/vector_memory.py",
+        "src/deterministic/memory/graph_memory.py",
+        "tests/support/run_editor_smoke.py"
+      ],
+      "blocked_by": [
+        "T6.5"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Both live stores recover source evidence and runtime feedback under the same budget.",
+      "sdd_snippet": "Both arms receive the same evidence and may differ only in representation and retrieval."
+    },
+    {
+      "task_id": "T7.2",
+      "goal_id": "G7",
+      "title": "Condition the shared workflow on retrieved context",
+      "rationale": "Use bounded memory context for understanding, planning, generation, and validation retries.",
+      "sdd_reference": ".docs/base.md#standardized-multi-agent-workflow",
+      "files": [
+        "src/deterministic/agents/graph.py",
+        "src/deterministic/agents/understanding.py",
+        "tests/support/run_editor_smoke.py"
+      ],
+      "blocked_by": [
+        "T7.1"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "A paired run records context IDs per task and bounded retry feedback.",
+      "sdd_snippet": "Agents query MemoryAdapter for context and route validation feedback to bounded retries."
+    },
+    {
+      "task_id": "T7.3",
+      "goal_id": "G7",
+      "title": "Persist run failures and stage telemetry",
+      "rationale": "Create the run record before work, preserve terminal failures and measure stage costs.",
+      "sdd_reference": ".docs/base.md#strict-cli-stages",
+      "files": [
+        "src/deterministic/cli.py",
+        "src/deterministic/telemetry/logger.py",
+        "tests/test_run_lifecycle.py"
+      ],
+      "blocked_by": [
+        "T7.2"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Injected failure still has a catalog row, manifest, error event, and output path.",
+      "sdd_snippet": "Each migration run has status transitions, JSONL events, and a durable manifest."
+    },
+    {
+      "task_id": "T7.4",
+      "goal_id": "G7",
+      "title": "Report all paired Editor outcomes",
+      "rationale": "Include failed arms and quality, retrieval, token, and latency measures.",
+      "sdd_reference": ".docs/base.md#observability-telemetry--evaluation-metrics",
+      "files": [
+        "src/deterministic/telemetry/evaluator.py",
+        "tests/test_evaluator.py"
+      ],
+      "blocked_by": [
+        "T7.3"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Evaluation includes failed pairs and measured deltas without zero-cost claims.",
+      "sdd_snippet": "Report behavioral success, context quality, token growth, retries, and end-to-end latency."
+    },
+    {
+      "task_id": "T7.5",
+      "goal_id": "G7",
+      "title": "Execute repeatable Editor proof of concept",
+      "rationale": "Run the pinned case in both isolated stores and document exact commands and limits.",
+      "sdd_reference": ".docs/base.md#prototype-scope-guardrails-kiss-constraints",
+      "files": [
+        "README.md",
+        ".docs/base.md",
+        ".env.example"
+      ],
+      "blocked_by": [
+        "T7.4"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Live-model Editor pairs run with pinned summaries/embeddings and evaluate writes complete and failed outcomes.",
+      "sdd_snippet": "One pinned repository is a feasibility proof; report model, versions, settings, and repeats."
+    },
+    {
+      "task_id": "T1.5",
+      "goal_id": "G1",
+      "title": "Configure runtime model endpoint",
+      "rationale": "Pass model settings into the non-root CLI without baking credentials into Docker.",
+      "sdd_reference": ".docs/base.md#container-and-runtime-storage",
+      "files": [
+        "docker-compose.yml",
+        ".env.example",
+        "README.md"
+      ],
+      "blocked_by": [
+        "T1.3"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "docker compose config succeeds and the image receives configured nonsecret model IDs.",
+      "sdd_snippet": "Model credentials are supplied at runtime; cache, catalog, and run volumes persist."
+    },
+    {
+      "task_id": "T2.5",
+      "goal_id": "G2",
+      "title": "Cache natural-language summaries and embeddings",
+      "rationale": "Give both arms the same source summaries and model vectors with recorded preprocessing usage.",
+      "sdd_reference": ".docs/base.md#shared-pre-processing--caching-layer-cost-control",
+      "files": [
+        "src/deterministic/agents/model.py",
+        "src/deterministic/ingestion/cache.py",
+        "src/deterministic/ingestion/schemas.py"
+      ],
+      "blocked_by": [
+        "T2.4"
+      ],
+      "parallel_group": null,
+      "acceptance_test": "Re-ingestion with the same model IDs hits the cache and returns identical Pydantic evidence.",
+      "sdd_snippet": "Shared summaries and embeddings are cached by revision, parser, and model versions."
     }
   ],
   "topological_order": [
@@ -322,10 +552,12 @@
     "T1.4",
     "T1.2",
     "T1.3",
+    "T1.5",
     "T2.1",
     "T2.2",
     "T2.3",
     "T2.4",
+    "T2.5",
     "T3.1",
     "T3.2",
     "T3.3",
@@ -333,7 +565,17 @@
     "T4.2",
     "T4.3",
     "T5.1",
-    "T5.2"
+    "T5.2",
+    "T6.1",
+    "T6.2",
+    "T6.3",
+    "T6.4",
+    "T6.5",
+    "T7.1",
+    "T7.2",
+    "T7.3",
+    "T7.4",
+    "T7.5"
   ],
   "validation_passed": true
 }

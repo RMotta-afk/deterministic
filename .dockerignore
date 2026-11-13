@@ -5,6 +5,7 @@ data
 runs
 .cache
 .context
+fixtures
 __pycache__
 .pytest_cache
 *.pyc

@@ -15,5 +15,5 @@
   "parallel_group": null,
   "acceptance_test": "A controlled case produces a cited context pack, ordered tasks, and target code",
   "sdd_snippet": "Agents build cited Context Packs, ordered Migration Tasks, and generated target files via MemoryAdapter. Context Packs, tasks, and artifact metadata use Pydantic models.",
-  "status": "pending"
+  "status": "completed"
 }

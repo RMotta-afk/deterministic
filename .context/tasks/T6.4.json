@@ -1,0 +1,20 @@
+{
+  "task_id": "T6.4",
+  "goal_id": "G6",
+  "title": "Build Editor executable contract harness",
+  "rationale": "Use the pinned tests and upstream behavior as the scoring oracle.",
+  "sdd_reference": ".docs/base.md#pinned-repository-boundaries",
+  "files": [
+    "src/deterministic/agents/editor_contract.py",
+    "tests/test_editor_contract.py",
+    "tests/support/editor_reference.ts"
+  ],
+  "blocked_by": [
+    "T6.3",
+    "T2.5"
+  ],
+  "parallel_group": null,
+  "acceptance_test": "Generated service passes GET, PUT, 404, 409, 502, 504 and key-boundary HTTP cases.",
+  "sdd_snippet": "Editor backend migrates; frontend and upstream remain in place as contract evidence.",
+  "status": "completed"
+}

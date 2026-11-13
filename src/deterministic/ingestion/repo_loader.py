@@ -35,7 +35,10 @@ def _copy_source(source: Path, target: Path) -> None:
 
 def _content_revision(root: Path) -> str:
     digest = hashlib.sha256()
-    for path in sorted(p for p in root.rglob("*") if p.is_file()):
+    for path in sorted(
+        (p for p in root.rglob("*") if p.is_file()),
+        key=lambda item: item.relative_to(root).as_posix(),
+    ):
         relative = path.relative_to(root).as_posix().encode("utf-8")
         digest.update(len(relative).to_bytes(8, "big"))
         digest.update(relative)
@@ -45,7 +48,9 @@ def _content_revision(root: Path) -> str:
     return digest.hexdigest()
 
 
-def load_source(source: str, cache_root: Path) -> SourceSnapshot:
+def load_source(
+    source: str, cache_root: Path, pinned_revision: str | None = None
+) -> SourceSnapshot:
     """Copy a source to a content-addressed cache path and return its revision."""
     local = Path(source).expanduser()
     cache_root.mkdir(parents=True, exist_ok=True)
@@ -56,7 +61,7 @@ def load_source(source: str, cache_root: Path) -> SourceSnapshot:
         staging = Path(temporary) / "source"
         if local.is_dir():
             _copy_source(local.resolve(), staging)
-        elif source.startswith("https://"):
+        elif source.startswith(("https://", "file://")):
             subprocess.run(
                 ["git", "clone", "--depth", "1", "--", source, str(staging)],
                 check=True,
@@ -64,6 +69,21 @@ def load_source(source: str, cache_root: Path) -> SourceSnapshot:
                 text=True,
                 timeout=180,
             )
+            if pinned_revision:
+                subprocess.run(
+                    ["git", "-C", str(staging), "fetch", "--depth", "1", "origin", pinned_revision],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=180,
+                )
+                subprocess.run(
+                    ["git", "-C", str(staging), "checkout", "--detach", "FETCH_HEAD"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
             git_revision = subprocess.run(
                 ["git", "-C", str(staging), "rev-parse", "HEAD"],
                 check=True,
@@ -71,6 +91,10 @@ def load_source(source: str, cache_root: Path) -> SourceSnapshot:
                 text=True,
                 timeout=15,
             ).stdout.strip()
+            if pinned_revision and git_revision != pinned_revision:
+                raise ValueError(
+                    f"requested commit {pinned_revision} resolved to unexpected {git_revision}"
+                )
             cleaned = Path(temporary) / "cleaned"
             _copy_source(staging, cleaned)
             staging = cleaned
