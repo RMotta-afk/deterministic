@@ -118,7 +118,7 @@ The `.pre-commit-config.yaml` gate runs Ruff lint and format checks, followed by
 
 ## 3. Standardized Multi-Agent Workflow
 
-For the TCC's research methodology, use the separate [Section 3 methodology supplement](tcc-secao-3-metodologia.md) and [PT-BR observability comparison](observability.pt-BR.md). This architecture section describes the prototype workflow, not a measured conclusion about graph superiority.
+For the TCC's research methodology, use the separate Section 3 methodology supplement (local document, excluded from the repository) and [PT-BR observability comparison](observability.pt-BR.md). This architecture section describes the prototype workflow, not a measured conclusion about graph superiority.
 
 Both entrypoints currently execute the same direct Python workflow. Agents interact with memory through the `MemoryAdapter` interface (`retrieve_context()`, `persist_artifact()`), remaining agnostic to whether Vector or Graph is running underneath. A LangGraph state machine was part of the conceptual design but is not implemented in this POC; adding it is not required to test the memory hypothesis.
 

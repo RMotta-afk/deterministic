@@ -2,7 +2,7 @@
 
 **Latest:** [Editor four-pillar study](editor-four-pillars-2026-11-14/OBSERVABILITY.pt-BR.md), with four scored pairs, one no-memory control, frozen labels, exact token accounting, source-grounded scalar factual errors, full call logs, implementation snapshot and checksums. Its measurement gate passes under the documented restricted definitions. The results show better accuracy for vector and lower latency/token consumption for graph; do not pool this dataset with earlier migration or synthetic runs.
 
-This directory keeps scored proof-of-concept evidence under version control for the TCC. The current study is documented in the [English observability record](../.docs/observability.md), its [PT-BR version](../.docs/observability.pt-BR.md), and a [thesis supplement](../.docs/tcc-adendo-evidencias.md), with the raw snapshot in [`editor-2026-11-13/`](editor-2026-11-13/).
+This directory keeps scored proof-of-concept evidence under version control for the TCC. The current study is documented in the [English observability record](../.docs/observability.md), its [PT-BR version](../.docs/observability.pt-BR.md), and a thesis supplement (local document, excluded from the repository), with the raw snapshot in [`editor-2026-11-13/`](editor-2026-11-13/).
 
 The [long-horizon evidence package](long-horizon-2026-11-13/) contains a separate synthetic retrieval study. Its diagnostic prompt run, scored one-shot pairs, no-memory ablation, and post-hoc stronger vector challenge must be interpreted separately. See the [protocol](../.docs/long-horizon-protocol.md) and the package README for the exact boundaries.
 

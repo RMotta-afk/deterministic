@@ -8,3 +8,7 @@ __pycache__/
 *.pyc
 *.duckdb
 *.duckdb.wal
+
+# Thesis supplements are kept locally, outside version control.
+/.docs/tcc-adendo-evidencias.md
+/.docs/tcc-secao-3-metodologia.md
