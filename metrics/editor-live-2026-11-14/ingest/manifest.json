@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "operation_id": "e0e6b207b46545978e7084bad500032a",
+  "profile": "project-editor",
+  "status": "ready",
+  "project_id": "681cbe488a3e94c4",
+  "revision": "a1131142f155762405c5c6843639b5e7d857b1a9fbdb657cc8faa922f4d53fc1:scope:9c0b315aa5f56c2d98c1028ab4b388b193a8cd1a4b1c9783bf364ee9365eedef",
+  "cache_hit": false,
+  "entity_count": 132,
+  "preprocessing": {
+    "summary_model": "gpt-5.4-mini",
+    "embedding_model": "text-embedding-3-small",
+    "summary_input_tokens": 9705,
+    "summary_output_tokens": 2505,
+    "embedding_input_tokens": 2457,
+    "duration_ms": 23940.512827997736,
+    "cost_usd": 0.01860039,
+    "schema_version": 1
+  },
+  "error": null
+}

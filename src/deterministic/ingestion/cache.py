@@ -11,7 +11,7 @@ from deterministic.ingestion.parser import parse_source
 from deterministic.ingestion.schemas import BehaviorCase, Evidence, PreprocessingStats
 from deterministic.ingestion.scope import BenchmarkScope
 
-PARSER_VERSION = "4"
+PARSER_VERSION = "5"
 EMBEDDING_VERSION = "deterministic-hash-1"
 SUMMARY_PROMPT = (
     "Summarize the given source file in plain English for a migration agent. "

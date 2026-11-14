@@ -1,0 +1,54 @@
+[
+  {
+    "path": "backend/project_editor/__init__.py",
+    "role": "migrate"
+  },
+  {
+    "path": "backend/project_editor/contracts.py",
+    "role": "migrate"
+  },
+  {
+    "path": "backend/project_editor/main.py",
+    "role": "migrate"
+  },
+  {
+    "path": "backend/project_editor/merge.py",
+    "role": "migrate"
+  },
+  {
+    "path": "backend/project_editor/upstream.py",
+    "role": "migrate"
+  },
+  {
+    "path": "backend/pyproject.toml",
+    "role": "contract"
+  },
+  {
+    "path": "backend/tests/test_api.py",
+    "role": "contract"
+  },
+  {
+    "path": "backend/tests/test_merge.py",
+    "role": "contract"
+  },
+  {
+    "path": "backend/tests/test_upstream.py",
+    "role": "contract"
+  },
+  {
+    "path": "docs/sdd/api-contract.md",
+    "role": "contract"
+  },
+  {
+    "path": "frontend/src/api.ts",
+    "role": "contract"
+  },
+  {
+    "path": "frontend/src/contracts.ts",
+    "role": "contract"
+  },
+  {
+    "path": "upstream/records_api/main.py",
+    "role": "contract"
+  }
+]

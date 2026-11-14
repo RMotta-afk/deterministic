@@ -2,6 +2,7 @@
 
 import ast
 import hashlib
+import posixpath
 import re
 from pathlib import Path
 
@@ -16,7 +17,7 @@ _TS = re.compile(
 def parse_source(root: Path, revision: str, scope: BenchmarkScope | None = None):
     entities: list[Entity] = []
     modules: dict[str, Entity] = {}
-    pending: list[tuple[str, str, str]] = []
+    pending: list[tuple[str, tuple[str, ...], str, int, str]] = []
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.suffix not in {
             ".py",
@@ -47,11 +48,20 @@ def parse_source(root: Path, revision: str, scope: BenchmarkScope | None = None)
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Import):
                         pending.extend(
-                            (rel, alias.name.split(".")[0], f"line:{node.lineno}")
+                            (rel, (alias.name,), f"line:{node.lineno}", 0, lang)
                             for alias in node.names
                         )
-                    elif isinstance(node, ast.ImportFrom) and node.module:
-                        pending.append((rel, node.module.split(".")[0], f"line:{node.lineno}"))
+                    elif isinstance(node, ast.ImportFrom):
+                        module = node.module or ""
+                        candidates = tuple(
+                            f"{module}.{alias.name}".strip(".")
+                            for alias in node.names
+                            if alias.name != "*"
+                        ) + ((module,) if module else ())
+                        if candidates:
+                            pending.append(
+                                (rel, candidates, f"line:{node.lineno}", node.level, lang)
+                            )
                 for node in ast.walk(tree):
                     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                         found.append(
@@ -68,7 +78,7 @@ def parse_source(root: Path, revision: str, scope: BenchmarkScope | None = None)
             for n, line in enumerate(text.splitlines(), 1):
                 imported = re.match(r"\s*import .* from ['\"]([^'\"]+)['\"]", line)
                 if imported:
-                    pending.append((rel, Path(imported.group(1)).stem, f"line:{n}"))
+                    pending.append((rel, (imported.group(1),), f"line:{n}", 0, lang))
             for n, line in enumerate(text.splitlines(), 1):
                 match = _TS.match(line)
                 if match:
@@ -89,7 +99,7 @@ def parse_source(root: Path, revision: str, scope: BenchmarkScope | None = None)
             role=role,
         )
         entities.append(module)
-        modules[Path(rel).stem] = module
+        modules[rel] = module
         for kind, name, start, end in found:
             snippet = "\n".join(text.splitlines()[start - 1 : end])
             eid = hashlib.sha256(
@@ -111,12 +121,14 @@ def parse_source(root: Path, revision: str, scope: BenchmarkScope | None = None)
             )
     relations = []
     by_path = {entity.path: entity for entity in entities if entity.kind in {"module", "manifest"}}
-    for source, imported, location in pending:
-        target = modules.get(imported)
+    seen: set[tuple[str, str, str]] = set()
+    for source, imports, location, level, language in pending:
+        target = _resolve_import(source, imports, level, language, modules)
         source_entity = by_path.get(source)
-        if target and source_entity:
+        if target and source_entity and (source, target.path, location) not in seen:
+            seen.add((source, target.path, location))
             relation_id = hashlib.sha256(
-                f"{revision}:{source}:{imported}:{location}".encode()
+                f"{revision}:{source}:{target.path}:{location}".encode()
             ).hexdigest()
             relations.append(
                 Relation(
@@ -128,3 +140,39 @@ def parse_source(root: Path, revision: str, scope: BenchmarkScope | None = None)
                 )
             )
     return entities, relations
+
+
+def _resolve_import(
+    source: str,
+    imports: tuple[str, ...],
+    level: int,
+    language: str,
+    modules: dict[str, Entity],
+) -> Entity | None:
+    for imported in imports:
+        if language == "typescript":
+            if not imported.startswith("."):
+                continue
+            stem = posixpath.normpath(posixpath.join(posixpath.dirname(source), imported))
+            candidates = [
+                f"{stem}{suffix}" for suffix in (".ts", ".tsx", ".js", "/index.ts", "/index.tsx")
+            ]
+        elif level:
+            base = posixpath.dirname(source)
+            for _ in range(level - 1):
+                base = posixpath.dirname(base)
+            stem = posixpath.normpath(posixpath.join(base, imported.replace(".", "/")))
+            candidates = [f"{stem}.py", f"{stem}/__init__.py"]
+        else:
+            stem = imported.replace(".", "/")
+            candidates = [
+                path
+                for path in modules
+                if path.endswith(f"/{stem}.py")
+                or path.endswith(f"/{stem}/__init__.py")
+                or path in {f"{stem}.py", f"{stem}/__init__.py"}
+            ]
+        matches = [modules[path] for path in candidates if path in modules]
+        if len(matches) == 1:
+            return matches[0]
+    return None

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "run_id": "72bc4e2aac0e465481196ca9d6bc9de0",
+  "contract_sha256": "977970817f392082c37cc646b7a9ce58c06d7b5bd6469c468981d599d6db966f",
+  "artifact_sha256": "e5e1ccd2f6d0313134a666d1d1c0b106a318eebe2c97d7e3bb0eec109d678c75",
+  "prompt_version": "684efae13c0eaec7",
+  "response": {
+    "text": "{\"findings\":[{\"id\":\"browser_projection\",\"verdict\":\"supported\",\"code_evidence\":\"return { id: p.id, name: p.name, sector: p.sector, country: p.country, stage: p.stage };\",\"reason\":\"Project list responses use toSummary, which omits linked_companies and other upstream-only fields. The detail response also uses toDetail, which omits linked_companies.\"},{\"id\":\"conflict_409\",\"verdict\":\"supported\",\"code_evidence\":\"return sendJson(res, 409, {\\n        code: 'edit_conflict',\\n        current: toDetail(current),\\n        conflicting_fields: result.conflicts,\\n      });\",\"reason\":\"On detected conflicts, the handler returns 409 with edit_conflict, current, and conflicting_fields, and does not call putProject before that branch.\"},{\"id\":\"key_dates\",\"verdict\":\"supported\",\"code_evidence\":\"const key_dates = choose(base.key_dates, proposed.key_dates, current.key_dates);\",\"reason\":\"The merge logic compares key_dates as one whole value, so the entire array is treated as a single merge/conflict field.\"},{\"id\":\"latest_companies\",\"verdict\":\"supported\",\"code_evidence\":\"const saved = await putProject(id, result.merged, current.linked_companies);\",\"reason\":\"The full upstream PUT body includes linked_companies taken from the latest read current.linked_companies.\"},{\"id\":\"missing_404\",\"verdict\":\"supported\",\"code_evidence\":\"if (e && e.message === 'not_found') return sendJson(res, 404, { code: 'project_not_found' });\",\"reason\":\"Missing projects are translated to HTTP 404 with project_not_found for both GET and PUT paths.\"},{\"id\":\"request_validation\",\"verdict\":\"supported\",\"code_evidence\":\"return isObject(v) && Object.keys(v).length === 2 && validateEditableFields(v.base) && validateEditableFields(v.proposed);\",\"reason\":\"The PUT body must contain exactly base and proposed, each validated as EditableFields; extras are rejected by the exact key-count checks and invalid values fail validation.\"},{\"id\":\"routes\",\"verdict\":\"supported\",\"code_evidence\":\"if (req.method === 'GET' && path === '/api/projects') {\\n...\\nif (m && req.method === 'GET') {\\n...\\nif (m && req.method === 'PUT') {\",\"reason\":\"The server exposes GET /api/projects, GET /api/projects/{id}, and PUT /api/projects/{id}.\"},{\"id\":\"server_key\",\"verdict\":\"supported\",\"code_evidence\":\"const UPSTREAM_API_KEY = process.env.UPSTREAM_API_KEY;\",\"reason\":\"The upstream API key is read from server environment and only used in upstreamFetch headers; it is never included in browser API responses.\"},{\"id\":\"unavailable_502\",\"verdict\":\"supported\",\"code_evidence\":\"return sendJson(res, 502, { code: 'upstream_unavailable' });\",\"reason\":\"Unavailable upstream reads are mapped to HTTP 502 with upstream_unavailable.\"},{\"id\":\"uncertain_504\",\"verdict\":\"supported\",\"code_evidence\":\"let observed = null;\\n      try {\\n        observed = toDetail(await getProject(id));\\n      } catch {}\\n      return sendJson(res, 504, { code: 'write_uncertain', observed });\",\"reason\":\"After a failed PUT, the handler performs at most one diagnostic getProject read and then returns 504 write_uncertain without retrying the write.\"},{\"id\":\"unchanged_no_put\",\"verdict\":\"supported\",\"code_evidence\":\"if (!result.changed) {\\n      return sendJson(res, 200, { project: toDetail(current) });\\n    }\",\"reason\":\"When the merged editable fields equal current, changed is false and the code returns 200 without calling putProject.\"},{\"id\":\"validation_422\",\"verdict\":\"supported\",\"code_evidence\":\"return sendJson(res, 422, { detail: 'Validation error' });\",\"reason\":\"Invalid JSON or invalid request bodies are rejected with HTTP 422.\"}]}",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "prompt_tokens": 3323,
+    "completion_tokens": 847,
+    "duration_ms": 3385.457055999723,
+    "cost_usd": 0.00630375
+  },
+  "findings": [
+    {
+      "id": "browser_projection",
+      "verdict": "supported",
+      "code_evidence": "return { id: p.id, name: p.name, sector: p.sector, country: p.country, stage: p.stage };",
+      "reason": "Project list responses use toSummary, which omits linked_companies and other upstream-only fields. The detail response also uses toDetail, which omits linked_companies."
+    },
+    {
+      "id": "conflict_409",
+      "verdict": "supported",
+      "code_evidence": "return sendJson(res, 409, {\n        code: 'edit_conflict',\n        current: toDetail(current),\n        conflicting_fields: result.conflicts,\n      });",
+      "reason": "On detected conflicts, the handler returns 409 with edit_conflict, current, and conflicting_fields, and does not call putProject before that branch."
+    },
+    {
+      "id": "key_dates",
+      "verdict": "supported",
+      "code_evidence": "const key_dates = choose(base.key_dates, proposed.key_dates, current.key_dates);",
+      "reason": "The merge logic compares key_dates as one whole value, so the entire array is treated as a single merge/conflict field."
+    },
+    {
+      "id": "latest_companies",
+      "verdict": "supported",
+      "code_evidence": "const saved = await putProject(id, result.merged, current.linked_companies);",
+      "reason": "The full upstream PUT body includes linked_companies taken from the latest read current.linked_companies."
+    },
+    {
+      "id": "missing_404",
+      "verdict": "supported",
+      "code_evidence": "if (e && e.message === 'not_found') return sendJson(res, 404, { code: 'project_not_found' });",
+      "reason": "Missing projects are translated to HTTP 404 with project_not_found for both GET and PUT paths."
+    },
+    {
+      "id": "request_validation",
+      "verdict": "supported",
+      "code_evidence": "return isObject(v) && Object.keys(v).length === 2 && validateEditableFields(v.base) && validateEditableFields(v.proposed);",
+      "reason": "The PUT body must contain exactly base and proposed, each validated as EditableFields; extras are rejected by the exact key-count checks and invalid values fail validation."
+    },
+    {
+      "id": "routes",
+      "verdict": "supported",
+      "code_evidence": "if (req.method === 'GET' && path === '/api/projects') {\n...\nif (m && req.method === 'GET') {\n...\nif (m && req.method === 'PUT') {",
+      "reason": "The server exposes GET /api/projects, GET /api/projects/{id}, and PUT /api/projects/{id}."
+    },
+    {
+      "id": "server_key",
+      "verdict": "supported",
+      "code_evidence": "const UPSTREAM_API_KEY = process.env.UPSTREAM_API_KEY;",
+      "reason": "The upstream API key is read from server environment and only used in upstreamFetch headers; it is never included in browser API responses."
+    },
+    {
+      "id": "unavailable_502",
+      "verdict": "supported",
+      "code_evidence": "return sendJson(res, 502, { code: 'upstream_unavailable' });",
+      "reason": "Unavailable upstream reads are mapped to HTTP 502 with upstream_unavailable."
+    },
+    {
+      "id": "uncertain_504",
+      "verdict": "supported",
+      "code_evidence": "let observed = null;\n      try {\n        observed = toDetail(await getProject(id));\n      } catch {}\n      return sendJson(res, 504, { code: 'write_uncertain', observed });",
+      "reason": "After a failed PUT, the handler performs at most one diagnostic getProject read and then returns 504 write_uncertain without retrying the write."
+    },
+    {
+      "id": "unchanged_no_put",
+      "verdict": "supported",
+      "code_evidence": "if (!result.changed) {\n      return sendJson(res, 200, { project: toDetail(current) });\n    }",
+      "reason": "When the merged editable fields equal current, changed is false and the code returns 200 without calling putProject."
+    },
+    {
+      "id": "validation_422",
+      "verdict": "supported",
+      "code_evidence": "return sendJson(res, 422, { detail: 'Validation error' });",
+      "reason": "Invalid JSON or invalid request bodies are rejected with HTTP 422."
+    }
+  ],
+  "supported": 12,
+  "contradicted": 0,
+  "uncertain": 0,
+  "contradiction_rate": 0.0
+}

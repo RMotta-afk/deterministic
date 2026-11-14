@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "run_id": "72bc4e2aac0e465481196ca9d6bc9de0",
+  "compared_claims": 6,
+  "agreements": 4,
+  "false_supports": [
+    "validation_422",
+    "unchanged_no_put"
+  ],
+  "false_contradictions": [],
+  "uncertain_claims": [],
+  "inexact_code_quotes": [
+    "routes"
+  ],
+  "passed": false
+}

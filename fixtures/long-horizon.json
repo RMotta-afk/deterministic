@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "scenario_id": "dependency-retention-v1",
+  "description": "Opaque code-shaped dependency chains with delayed relational questions and accumulating agent state.",
+  "chains": [
+    {
+      "route": "RT-014BB2A1",
+      "handler": "HD-3AF1FB10",
+      "contract": "CT-B6DC1CEC",
+      "token": "ZX-6F63ACA3"
+    },
+    {
+      "route": "RT-EE4925A1",
+      "handler": "HD-74B99142",
+      "contract": "CT-A12F0942",
+      "token": "ZX-18E47771"
+    },
+    {
+      "route": "RT-958014F1",
+      "handler": "HD-CF71754C",
+      "contract": "CT-5EEDCF59",
+      "token": "ZX-52F80A98"
+    },
+    {
+      "route": "RT-B73E8AF7",
+      "handler": "HD-07EB381E",
+      "contract": "CT-1F4C87F9",
+      "token": "ZX-DC844118"
+    },
+    {
+      "route": "RT-3004452C",
+      "handler": "HD-05623344",
+      "contract": "CT-3C0C890A",
+      "token": "ZX-E13DE043"
+    },
+    {
+      "route": "RT-71922153",
+      "handler": "HD-3FB45ECA",
+      "contract": "CT-EFD1A952",
+      "token": "ZX-F9F7C3FC"
+    },
+    {
+      "route": "RT-27C14977",
+      "handler": "HD-7E96DA81",
+      "contract": "CT-6AE938C8",
+      "token": "ZX-EE7DAEFE"
+    },
+    {
+      "route": "RT-0B6ED750",
+      "handler": "HD-255F8547",
+      "contract": "CT-315BB4C2",
+      "token": "ZX-18F97BC3"
+    },
+    {
+      "route": "RT-2B8BE67A",
+      "handler": "HD-760F39F4",
+      "contract": "CT-BBCB5C7F",
+      "token": "ZX-3F6D19AA"
+    },
+    {
+      "route": "RT-ECC28F0B",
+      "handler": "HD-4BE5916F",
+      "contract": "CT-43C84A34",
+      "token": "ZX-68C25161"
+    },
+    {
+      "route": "RT-28CBE331",
+      "handler": "HD-4E6862F7",
+      "contract": "CT-D46AD968",
+      "token": "ZX-FD47A38E"
+    },
+    {
+      "route": "RT-A3281BF8",
+      "handler": "HD-20D36D72",
+      "contract": "CT-07459729",
+      "token": "ZX-1E80BADC"
+    }
+  ],
+  "questions": [
+    {
+      "chain_index": 0,
+      "kind": "local"
+    },
+    {
+      "chain_index": 11,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 1,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 10,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 2,
+      "kind": "local"
+    },
+    {
+      "chain_index": 9,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 3,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 8,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 4,
+      "kind": "local"
+    },
+    {
+      "chain_index": 7,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 5,
+      "kind": "relational"
+    },
+    {
+      "chain_index": 6,
+      "kind": "relational"
+    }
+  ]
+}

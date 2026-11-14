@@ -1,0 +1,8 @@
+{
+  "image_id": "sha256:9e3ea5da2e76054bf72cbf180826a6b94d9b246f0cba1ec5f890e6e9bee5ddba",
+  "source_mode": "read-only host src bind at /app/src; PYTHONPATH=/app/src",
+  "source_commit_verified": "cd588660d6f30fefbf1ba030e6890f93279dddf1",
+  "source_submodule_clean": true,
+  "implementation_snapshot": "implementation/src",
+  "ttft_in_scope": false
+}

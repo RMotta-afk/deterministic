@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "run_id": "fc681e6e33be479f9d735d15fcfe2f1c",
+  "contract_sha256": "977970817f392082c37cc646b7a9ce58c06d7b5bd6469c468981d599d6db966f",
+  "artifact_sha256": "4bd01f897ef220bf9ffc82f53bb786d8582144ff0507d7994d16685ab7eeb93c",
+  "prompt_version": "684efae13c0eaec7",
+  "response": {
+    "text": "{\"findings\":[{\"id\":\"browser_projection\",\"verdict\":\"supported\",\"code_evidence\":\"sendJson(res, 200, { project: detail(current.project) });\",\"reason\":\"Browser-facing GET responses use the projected detail shape, and list responses map to summarize(), which omits upstream-only fields such as linked_companies.\"},{\"id\":\"conflict_409\",\"verdict\":\"supported\",\"code_evidence\":\"if (result.conflicts.length) {\\n    return sendJson(res, 409, { code: 'edit_conflict', current: detail(current), conflicting_fields: result.conflicts });\\n  }\",\"reason\":\"Conflicts return HTTP 409 with code edit_conflict and include current plus conflicting_fields; no PUT is issued on that branch.\"},{\"id\":\"key_dates\",\"verdict\":\"supported\",\"code_evidence\":\"const fields = ['name', 'sector', 'country', 'stage', 'key_dates'];\",\"reason\":\"The merge logic treats key_dates as one top-level editable field, not as individually merged entries.\"},{\"id\":\"latest_companies\",\"verdict\":\"supported\",\"code_evidence\":\"linked_companies: current.linked_companies || [],\",\"reason\":\"The upstream PUT body includes linked_companies taken from the latest current read.\"},{\"id\":\"missing_404\",\"verdict\":\"supported\",\"code_evidence\":\"if (resp.status === 404) return { kind: 'missing' };\",\"reason\":\"A missing upstream project is mapped to notFound(), which sends HTTP 404 with project_not_found.\"},{\"id\":\"request_validation\",\"verdict\":\"supported\",\"code_evidence\":\"if (keys.length !== 2 || !('base' in body) || !('proposed' in body)) return false;\",\"reason\":\"The save body requires exactly base and proposed, and validateEditable rejects extra keys and invalid values.\"},{\"id\":\"routes\",\"verdict\":\"supported\",\"code_evidence\":\"if (method === 'GET' && url.pathname === '/api/projects') {\\n    return listProjectsHandler(res);\\n  }\",\"reason\":\"The server explicitly exposes GET /api/projects, GET /api/projects/{id}, and PUT /api/projects/{id}.\"},{\"id\":\"server_key\",\"verdict\":\"supported\",\"code_evidence\":\"if (UPSTREAM_API_KEY) headers['X-Api-Key'] = UPSTREAM_API_KEY;\",\"reason\":\"The upstream API key is used server-side in outbound requests and is not included in browser responses.\"},{\"id\":\"unavailable_502\",\"verdict\":\"supported\",\"code_evidence\":\"function upstreamUnavailable(res) {\\n  sendJson(res, 502, { code: 'upstream_unavailable' });\\n}\",\"reason\":\"Unavailable upstream reads are reported with HTTP 502 and the required error code.\"},{\"id\":\"uncertain_504\",\"verdict\":\"supported\",\"code_evidence\":\"const observed = await getCurrent(projectId);\\n      return uncertain(res, observed.kind === 'ok' ? detail(observed.project) : null);\",\"reason\":\"On PUT failure or missing response, the code performs at most one diagnostic getCurrent() before returning HTTP 504 write_uncertain and never retries the write.\"},{\"id\":\"unchanged_no_put\",\"verdict\":\"supported\",\"code_evidence\":\"if (!result.changed) {\\n    return sendJson(res, 200, { project: detail(current) });\\n  }\",\"reason\":\"When the merged editable fields equal current, the handler returns 200 without issuing an upstream PUT.\"},{\"id\":\"validation_422\",\"verdict\":\"supported\",\"code_evidence\":\"if (!validateSave(body)) return badRequest(res, 422);\",\"reason\":\"Invalid browser request bodies are rejected with HTTP 422.\"}]}",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "prompt_tokens": 3442,
+    "completion_tokens": 759,
+    "duration_ms": 3044.0324609990057,
+    "cost_usd": 0.005997
+  },
+  "findings": [
+    {
+      "id": "browser_projection",
+      "verdict": "supported",
+      "code_evidence": "sendJson(res, 200, { project: detail(current.project) });",
+      "reason": "Browser-facing GET responses use the projected detail shape, and list responses map to summarize(), which omits upstream-only fields such as linked_companies."
+    },
+    {
+      "id": "conflict_409",
+      "verdict": "supported",
+      "code_evidence": "if (result.conflicts.length) {\n    return sendJson(res, 409, { code: 'edit_conflict', current: detail(current), conflicting_fields: result.conflicts });\n  }",
+      "reason": "Conflicts return HTTP 409 with code edit_conflict and include current plus conflicting_fields; no PUT is issued on that branch."
+    },
+    {
+      "id": "key_dates",
+      "verdict": "supported",
+      "code_evidence": "const fields = ['name', 'sector', 'country', 'stage', 'key_dates'];",
+      "reason": "The merge logic treats key_dates as one top-level editable field, not as individually merged entries."
+    },
+    {
+      "id": "latest_companies",
+      "verdict": "supported",
+      "code_evidence": "linked_companies: current.linked_companies || [],",
+      "reason": "The upstream PUT body includes linked_companies taken from the latest current read."
+    },
+    {
+      "id": "missing_404",
+      "verdict": "supported",
+      "code_evidence": "if (resp.status === 404) return { kind: 'missing' };",
+      "reason": "A missing upstream project is mapped to notFound(), which sends HTTP 404 with project_not_found."
+    },
+    {
+      "id": "request_validation",
+      "verdict": "supported",
+      "code_evidence": "if (keys.length !== 2 || !('base' in body) || !('proposed' in body)) return false;",
+      "reason": "The save body requires exactly base and proposed, and validateEditable rejects extra keys and invalid values."
+    },
+    {
+      "id": "routes",
+      "verdict": "supported",
+      "code_evidence": "if (method === 'GET' && url.pathname === '/api/projects') {\n    return listProjectsHandler(res);\n  }",
+      "reason": "The server explicitly exposes GET /api/projects, GET /api/projects/{id}, and PUT /api/projects/{id}."
+    },
+    {
+      "id": "server_key",
+      "verdict": "supported",
+      "code_evidence": "if (UPSTREAM_API_KEY) headers['X-Api-Key'] = UPSTREAM_API_KEY;",
+      "reason": "The upstream API key is used server-side in outbound requests and is not included in browser responses."
+    },
+    {
+      "id": "unavailable_502",
+      "verdict": "supported",
+      "code_evidence": "function upstreamUnavailable(res) {\n  sendJson(res, 502, { code: 'upstream_unavailable' });\n}",
+      "reason": "Unavailable upstream reads are reported with HTTP 502 and the required error code."
+    },
+    {
+      "id": "uncertain_504",
+      "verdict": "supported",
+      "code_evidence": "const observed = await getCurrent(projectId);\n      return uncertain(res, observed.kind === 'ok' ? detail(observed.project) : null);",
+      "reason": "On PUT failure or missing response, the code performs at most one diagnostic getCurrent() before returning HTTP 504 write_uncertain and never retries the write."
+    },
+    {
+      "id": "unchanged_no_put",
+      "verdict": "supported",
+      "code_evidence": "if (!result.changed) {\n    return sendJson(res, 200, { project: detail(current) });\n  }",
+      "reason": "When the merged editable fields equal current, the handler returns 200 without issuing an upstream PUT."
+    },
+    {
+      "id": "validation_422",
+      "verdict": "supported",
+      "code_evidence": "if (!validateSave(body)) return badRequest(res, 422);",
+      "reason": "Invalid browser request bodies are rejected with HTTP 422."
+    }
+  ],
+  "supported": 12,
+  "contradicted": 0,
+  "uncertain": 0,
+  "contradiction_rate": 0.0
+}

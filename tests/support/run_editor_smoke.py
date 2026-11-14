@@ -114,6 +114,26 @@ def run():
                         path / "graph.jsonl", row["run_id"], os.environ["FALKORDB_HOST"]
                     )
                 )
+                if row["memory"] == "graph":
+                    from falkordb import FalkorDB
+
+                    graph = FalkorDB(host=os.environ["FALKORDB_HOST"]).select_graph(row["run_id"])
+                    edge_count = graph.ro_query(
+                        "MATCH ()-[r:IMPORTS]->() RETURN count(r)"
+                    ).result_set[0][0]
+                    assert edge_count >= 5, f"expected source import edges, got {edge_count}"
+                    for edge_type in ("USES_EVIDENCE", "PRODUCED_BY", "VALIDATES", "SUPERSEDES"):
+                        count = graph.ro_query(
+                            f"MATCH ()-[r:{edge_type}]->() RETURN count(r)"
+                        ).result_set[0][0]
+                        assert count > 0, f"expected runtime {edge_type} edges"
+                records = [
+                    json.loads(line)
+                    for line in (path / f"{row['memory']}.jsonl").read_text().splitlines()
+                ]
+                assert {"artifact:0:0", "artifact:0:1"} <= {
+                    record["record_id"] for record in records
+                }
                 feedback = memory.retrieve_context(
                     Request(query="validation feedback", token_budget=4000, limit=50)
                 )

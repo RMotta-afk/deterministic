@@ -51,10 +51,14 @@ class GraphMemory(MemoryAdapter):
                     "INHERITS_FROM",
                     "IMPLEMENTS_CONTRACT",
                     "DEPENDS_ON",
+                    "USES_EVIDENCE",
+                    "PRODUCED_BY",
+                    "VALIDATES",
+                    "SUPERSEDES",
                 }:
                     edge_type = "DEPENDS_ON"
                 graph.query(
-                    f"MATCH (a:Evidence {{id:$source}}), (b:Evidence {{id:$target}}) "
+                    "MATCH (a {id:$source}), (b {id:$target}) "
                     f"MERGE (a)-[r:{edge_type} {{id:$id}}]->(b) "
                     "SET r.provenance=$provenance",
                     params={
@@ -68,7 +72,60 @@ class GraphMemory(MemoryAdapter):
 
     def retrieve_context(self, request: Request) -> Context:
         terms = set(request.query.lower().split())
-        neighbors: dict[str, list[str]] = {}
+        candidates = [
+            record for record in self.records.values() if record.metadata.get("kind") != "relation"
+        ]
+
+        def score(record: Record) -> int:
+            return len(
+                terms
+                & set((record.metadata.get("kind", "") + " " + record.content).lower().split())
+            )
+
+        ranked = sorted(candidates, key=lambda record: (-score(record), record.record_id))
+        anchors = [record_id for record_id in request.anchor_ids if record_id in self.records]
+        seeds = list(
+            dict.fromkeys(
+                anchors or [record.record_id for record in ranked if score(record) > 0][:3]
+            )
+        )
+        if not seeds and ranked:
+            seeds = [ranked[0].record_id]
+        ordered_ids = list(seeds)
+        visited = set(seeds)
+        frontier = seeds
+        for _depth in range(2):
+            next_frontier = []
+            for record_id in frontier:
+                for neighbor_id, edge_id in self._neighbors(record_id, request.limit):
+                    if edge_id in self.records and edge_id not in ordered_ids:
+                        ordered_ids.append(edge_id)
+                    if neighbor_id in self.records and neighbor_id not in visited:
+                        ordered_ids.append(neighbor_id)
+                        visited.add(neighbor_id)
+                        next_frontier.append(neighbor_id)
+                    if len(visited) >= request.limit:
+                        break
+                if len(visited) >= request.limit:
+                    break
+            frontier = next_frontier
+            if not frontier or len(visited) >= request.limit:
+                break
+        result: list[Record] = []
+        count = 0
+        for record_id in ordered_ids:
+            rec = self.records[record_id]
+            cost = max(1, len(rec.content.split()))
+            if count + cost <= request.token_budget:
+                result.append(rec)
+                count += cost
+            if len(result) >= request.limit:
+                break
+        return Context(
+            records=result, token_count=count, evidence_ids=[r.record_id for r in result]
+        )
+
+    def _neighbors(self, record_id: str, limit: int) -> list[tuple[str, str]]:
         if self.endpoint:
             from falkordb import FalkorDB
 
@@ -77,52 +134,18 @@ class GraphMemory(MemoryAdapter):
                 port=int(os.getenv("FALKORDB_PORT", "6379")),
             ).select_graph(self.graph)
             rows = graph.ro_query(
-                "MATCH (a:Evidence)-[r]->(b:Evidence) RETURN a.id, b.id LIMIT 500"
+                f"MATCH (a {{id:$id}})-[r]-(b) RETURN b.id, r.id ORDER BY b.id LIMIT {limit}",
+                params={"id": record_id},
             ).result_set
-            for source_id, target_id in rows:
-                neighbors.setdefault(str(source_id), []).append(str(target_id))
-            stored_ids = set(self.records)
-            if self.endpoint:
-                stored_ids = {
-                    str(row[0])
-                    for row in graph.ro_query("MATCH (n) RETURN n.id LIMIT 5000").result_set
-                }
-        else:
-            stored_ids = set(self.records)
-        ranked = sorted(
-            (record for record in self.records.values() if record.record_id in stored_ids),
-            key=lambda r: len(
-                terms & set((r.metadata.get("kind", "") + " " + r.content).lower().split())
-            ),
-            reverse=True,
-        )
-        result = []
-        used = set()
-        count = 0
-        seed_ids = [record.record_id for record in ranked[: request.limit]]
-        traversal_ids = list(seed_ids)
-        for record_id in seed_ids:
-            traversal_ids.extend(neighbors.get(record_id, [])[: request.limit])
-        ordered = [
-            self.records[record_id]
-            for record_id in dict.fromkeys(traversal_ids)
-            if record_id in self.records
-        ]
-        for rec in ordered:
-            related = bool(used.intersection(rec.provenance))
-            cost = max(1, len(rec.content.split()))
-            if (
-                not result
-                or related
-                or terms.intersection(
-                    (rec.metadata.get("kind", "") + " " + rec.content).lower().split()
-                )
-            ) and count + cost <= request.token_budget:
-                result.append(rec)
-                used.update(rec.provenance)
-                count += cost
-            if len(result) >= request.limit:
-                break
-        return Context(
-            records=result, token_count=count, evidence_ids=[r.record_id for r in result]
-        )
+            return [(str(neighbor), str(edge)) for neighbor, edge in rows]
+        neighbors = []
+        for record in self.records.values():
+            if record.metadata.get("kind") != "relation":
+                continue
+            source = record.metadata.get("source_id")
+            target = record.metadata.get("target_id")
+            if source == record_id and target:
+                neighbors.append((target, record.record_id))
+            elif target == record_id and source:
+                neighbors.append((source, record.record_id))
+        return sorted(neighbors)[:limit]

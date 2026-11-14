@@ -22,9 +22,13 @@ The system ingests a pinned source repository or controlled local fixture and ex
 
 The first scored proof of concept migrates the pinned **Python `project-editor` backend to TypeScript**. The CLI and controlled fixtures retain both language directions for later work, but `project-intaker` is not part of this first result. Repositories may contain other languages in preserved frontends or contract fixtures; those files are not migration targets.
 
+The Editor migration is a feasibility case. It does not by itself test long-running context. The follow-up study uses a predeclared sequence of dependent, code-shaped tasks with delayed two-hop questions, accumulating task/artifact/validation memory, a fixed context budget, and explicit local-retrieval controls. Two model-backed roles consume retrieved context in each scored step; a deterministic reviewer checks opaque gold answers that never appear in model prompts. A no-memory ablation checks whether prompts alone reveal the answers. Keep this controlled study separate from the live Editor migration report.
+
 The shared parser extracts language-neutral entities and relations while retaining source locations, original signatures, imports, types, and code snippets. Context Packs explain those facts in natural language for the agents, but remain linked to the source evidence. Natural-language summaries are an aid to retrieval and planning, not a lossless intermediate representation of program behavior.
 
 Both memory entrypoints receive the same parsed entities, summaries, embeddings, migration direction, and validation fixtures for a given case. Benchmark results are compared **within each direction** before combining results across directions.
+
+If Cognee is used for graph, chunk, or vector preparation, run its extraction once before either arm, export a versioned Pydantic evidence snapshot, and give both arms the exact same snapshot. Verify every code relation against source provenance and reject missing required edges; model-inferred links may not silently become deterministic facts. Pin compatible Cognee and community-adapter versions and validate the Qdrant/FalkorDB combination before making Cognee a required path. The deterministic parser and shared embedding cache remain the reproducible baseline until that compatibility gate passes.
 
 Keep the small controlled examples and fixed-response Editor mock as smoke tests. They are not thesis evidence. The first scored input is the pinned `fixtures/project-editor` Git submodule. `fixtures/project-intaker` remains available for later replication. Report the submodule commit, scoped file list, target runtime, dependency versions, and executable behavioral checks for every run.
 
@@ -41,6 +45,8 @@ Compare vector and graph arms **within the pinned Editor revision and Python-to-
 For every case, run both memory arms with the same source evidence and cached evidence summaries, embedding model, agent workflow, model version, prompts, generation settings, tools, task-ordering policy, validation fixtures, retry cap, and stopping rules. Each arm may generate different Context Packs and tasks as a result of retrieval; preserve those outputs for comparison. Give each arm the same maximum retrieved-context budget per step. The first POC uses a whitespace-word packing estimate; report actual provider prompt tokens separately, and do not call the estimate an exact tokenizer count. Run arms in fresh, isolated stores and record model responses; equal settings do not make stochastic generation deterministic.
 
 The vector baseline indexes the same entities and intermediate artifacts with stable IDs and metadata. It may use reproducible metadata filters and context packing in addition to similarity search. The graph arm uses explicit, substantiated edges and bounded traversal. Both arms can persist and retrieve tasks, artifacts, validation feedback, and status. The comparison tests memory representation and retrieval, rather than withholding useful evidence or feedback from one arm.
+
+Before any scored relational comparison, assert nonzero source edges, task/artifact/validation links, and retrieval of a deliberately lexically disjoint two-hop dependency under the shared budget. Record retrieved node and relation IDs at every step. Historical runs without graph edges are pipeline-feasibility evidence only and cannot support a relational-memory effectiveness claim.
 
 Account for ingestion, embeddings, graph construction, vector indexing, reads, writes, generation, and retries. Report shared preprocessing separately. Provider USD cost is reported only when explicit input, output, and embedding rates are configured; self-hosted database infrastructure has latency and write counts but no invented USD price. Repeat paired Editor runs to estimate model variance.
 
@@ -112,7 +118,9 @@ The `.pre-commit-config.yaml` gate runs Ruff lint and format checks, followed by
 
 ## 3. Standardized Multi-Agent Workflow
 
-Both entrypoints execute the exact same LangGraph state machine. Agents interact with memory solely through an abstract `MemoryAdapter` interface (`retrieve_context()`, `persist_artifact()`), remaining agnostic to whether Vector or Graph is running underneath.
+For the TCC's research methodology, use the separate [Section 3 methodology supplement](tcc-secao-3-metodologia.md) and [PT-BR observability comparison](observability.pt-BR.md). This architecture section describes the prototype workflow, not a measured conclusion about graph superiority.
+
+Both entrypoints currently execute the same direct Python workflow. Agents interact with memory through the `MemoryAdapter` interface (`retrieve_context()`, `persist_artifact()`), remaining agnostic to whether Vector or Graph is running underneath. A LangGraph state machine was part of the conceptual design but is not implemented in this POC; adding it is not required to test the memory hypothesis.
 
 ```text
 

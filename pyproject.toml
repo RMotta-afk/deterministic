@@ -13,6 +13,7 @@ dependencies = [
     "falkordb>=1.2,<2",
     "fastapi>=0.115,<1",
     "uvicorn>=0.30,<1",
+    "tiktoken==0.12.0",
 ]
 
 [dependency-groups]
@@ -27,7 +28,7 @@ packages = ["src/deterministic"]
 [tool.ruff]
 target-version = "py313"
 line-length = 100
-extend-exclude = ["fixtures"]
+extend-exclude = ["fixtures", "metrics"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

@@ -28,6 +28,7 @@ from deterministic.ingestion.schemas import Evidence
 from deterministic.ingestion.scope import load_scope
 from deterministic.memory.graph_memory import GraphMemory
 from deterministic.memory.vector_memory import VectorMemory
+from deterministic.study.runner import run_session
 from deterministic.telemetry.evaluator import evaluate
 from deterministic.telemetry.logger import IngestManifest, RunManifest, write_event
 
@@ -47,6 +48,15 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--repeat", type=int, default=1, help="Number of fresh paired attempts")
     evaluation = commands.add_parser("evaluate")
     evaluation.add_argument("--project", help="Limit the report to one indexed project")
+    study = commands.add_parser("study", help="Run the delayed-dependency memory study")
+    study.add_argument("--scenario", type=Path, required=True)
+    study.add_argument("--mode", choices=("mock", "live"), default="mock")
+    study.add_argument(
+        "--memory",
+        choices=("both", "strong", "vector", "vector_followup", "graph", "none"),
+        default="both",
+    )
+    study.add_argument("--repeat", type=int, default=1)
     return parser
 
 
@@ -402,6 +412,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _ingest(args.source, args.revision, args.scope_file, args.profile)
     if args.command == "migrate":
         return _migrate(args.project, args.target, args.memory, args.repeat)
+    if args.command == "study":
+        report, path = run_session(args.scenario, args.mode, args.memory, args.repeat, _data_dir())
+        print(f"Study report: {path} pairs={len(report.pairs)} runs={len(report.runs)}")
+        for run in report.runs:
+            passed = sum(step.passed for step in run.steps)
+            print(f"{run.memory} {run.run_id}: {passed}/{len(run.steps)} status={run.status}")
+        return 1 if any(run.status == "failed" for run in report.runs) else 0
     data = _data_dir()
     with Catalog(data / "catalog" / "projects.duckdb") as cat:
         runs = cat.list_runs()

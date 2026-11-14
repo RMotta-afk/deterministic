@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "repositories": [
+    {
+      "id": "project-intaker",
+      "path": "fixtures/project-intaker",
+      "commit": "9c8eba9b2d3ecff4b7f37609c56cc1012e78e116",
+      "content_sha256": "5e7548d0dc755194887a08b897a219575eb7057a3367775470ebcc09f1090298",
+      "source_language": "typescript",
+      "target_language": "python",
+      "migration_roots": [
+        "app/api",
+        "src/server",
+        "src/ai"
+      ],
+      "migration_exclude_globs": [
+        "**/*.test.ts",
+        "**/*.integration.test.ts",
+        "src/ai/evaluation/**"
+      ],
+      "contract_roots": [
+        "src/contracts",
+        "src/ai/evaluation",
+        "prisma",
+        "package.json"
+      ],
+      "preserve_roots": [
+        "app/error.tsx",
+        "app/globals.css",
+        "app/intakes",
+        "app/layout.tsx",
+        "app/loading.tsx",
+        "app/new",
+        "app/new-intake",
+        "app/page.tsx"
+      ],
+      "connection": "Keep the Next.js UI and its /api URL surface. Move backend behavior to Python and use thin Next.js route handlers to forward requests while preserving status codes and JSON contracts."
+    },
+    {
+      "id": "project-editor",
+      "path": "fixtures/project-editor",
+      "commit": "cd588660d6f30fefbf1ba030e6890f93279dddf1",
+      "content_sha256": "a1131142f155762405c5c6843639b5e7d857b1a9fbdb657cc8faa922f4d53fc1",
+      "source_language": "python",
+      "target_language": "typescript",
+      "migration_roots": [
+        "backend/project_editor"
+      ],
+      "migration_exclude_globs": [],
+      "contract_roots": [
+        "backend/tests",
+        "backend/pyproject.toml",
+        "frontend/src/api.ts",
+        "frontend/src/contracts.ts",
+        "upstream/records_api/main.py",
+        "docs/sdd/api-contract.md"
+      ],
+      "preserve_roots": [
+        "frontend",
+        "upstream"
+      ],
+      "connection": "Keep the React/Vite UI and upstream records service. The TypeScript backend must retain the /api/projects contract and keep the upstream API key on the server."
+    }
+  ]
+}

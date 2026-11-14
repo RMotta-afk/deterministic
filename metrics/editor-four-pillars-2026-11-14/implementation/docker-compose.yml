@@ -1,0 +1,46 @@
+services:
+  cli:
+    build: .
+    depends_on:
+      - qdrant
+      - falkordb
+    environment:
+      DETERMINISTIC_DATA_DIR: /data
+      QDRANT_URL: http://qdrant:6333
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: "6379"
+      MIGRATION_BASE_URL: ${MIGRATION_BASE_URL:-https://api.openai.com/v1}
+      MIGRATION_MODEL: ${MIGRATION_MODEL:-}
+      MIGRATION_API_KEY: ${MIGRATION_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MIGRATION_SUMMARY_MODEL: ${MIGRATION_SUMMARY_MODEL:-}
+      MIGRATION_EMBEDDING_MODEL: ${MIGRATION_EMBEDDING_MODEL:-}
+      MIGRATION_MAX_COMPLETION_TOKENS: ${MIGRATION_MAX_COMPLETION_TOKENS:-6000}
+      MIGRATION_TIMEOUT_SECONDS: ${MIGRATION_TIMEOUT_SECONDS:-120}
+      MIGRATION_INPUT_USD_PER_MILLION: ${MIGRATION_INPUT_USD_PER_MILLION:-}
+      MIGRATION_OUTPUT_USD_PER_MILLION: ${MIGRATION_OUTPUT_USD_PER_MILLION:-}
+      MIGRATION_EMBEDDING_USD_PER_MILLION: ${MIGRATION_EMBEDDING_USD_PER_MILLION:-}
+    volumes:
+      - ./fixtures:/fixtures:ro
+      - cache:/data/cache
+      - catalog:/data/catalog
+      - runs:/data/runs
+
+  qdrant:
+    image: qdrant/qdrant@sha256:0bd98fa7977f1e75694779359ca4e212822e5a71334e28421182f72f209d5286
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  falkordb:
+    image: falkordb/falkordb-server@sha256:698a6e748b42699c1f63af01f8902652b764582e363731de56c7d566c322c209
+    environment:
+      REDIS_ARGS: --appendonly yes
+    volumes:
+      - falkordb_data:/data
+
+volumes:
+  cache:
+  catalog:
+  runs:
+  qdrant_data:
+  falkordb_data:

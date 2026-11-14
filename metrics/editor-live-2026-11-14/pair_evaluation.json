@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "72bc4e2aac0e465481196ca9d6bc9de0",
+      "pair_id": "b808b0ab044a4c0c97c7f610152f9341",
+      "project_id": "681cbe488a3e94c4",
+      "revision": "a1131142f155762405c5c6843639b5e7d857b1a9fbdb657cc8faa922f4d53fc1:scope:9c0b315aa5f56c2d98c1028ab4b388b193a8cd1a4b1c9783bf364ee9365eedef",
+      "direction": "python-to-typescript",
+      "memory": "vector",
+      "status": "failed",
+      "validation_passed": false,
+      "contract_checks_passed": 10,
+      "contract_checks_total": 12,
+      "input_tokens": 34938,
+      "output_tokens": 6443,
+      "runtime_provider_cost_usd": 0.05534706,
+      "retrieval_ms": 1933.8980760003324,
+      "persist_ms": 16867.605999996158,
+      "generation_ms": 18775.8336170009,
+      "validation_ms": 6646.57765100128,
+      "end_to_end_ms": 44242.53907199818,
+      "retries": 2,
+      "context_word_estimates_by_step": [
+        3781,
+        3794,
+        3814,
+        3986
+      ],
+      "evidence_recall": 0.625,
+      "evidence_precision": 0.5555555555555556,
+      "error": "validation_422: AssertionError: \nunchanged_update_no_put: AssertionError: ",
+      "settings_signature": "3873f51469bfc6b289d56c188ccd859c0b8e27296b6da9fd680fd9a3c734a3d4",
+      "runtime_embedding_tokens": 7503,
+      "runtime_embedding_ms": 17596.002613991004,
+      "shared_preprocessing_tokens": 14667,
+      "shared_preprocessing_ms": 23940.512827997736,
+      "shared_preprocessing_cost_usd": 0.01860039,
+      "actual_models": [
+        "gpt-5.4-mini-2026-03-17"
+      ],
+      "arm_order": "vector_first"
+    },
+    {
+      "run_id": "fc681e6e33be479f9d735d15fcfe2f1c",
+      "pair_id": "b808b0ab044a4c0c97c7f610152f9341",
+      "project_id": "681cbe488a3e94c4",
+      "revision": "a1131142f155762405c5c6843639b5e7d857b1a9fbdb657cc8faa922f4d53fc1:scope:9c0b315aa5f56c2d98c1028ab4b388b193a8cd1a4b1c9783bf364ee9365eedef",
+      "direction": "python-to-typescript",
+      "memory": "graph",
+      "status": "complete",
+      "validation_passed": true,
+      "contract_checks_passed": 12,
+      "contract_checks_total": 12,
+      "input_tokens": 33288,
+      "output_tokens": 6869,
+      "runtime_provider_cost_usd": 0.055876499999999996,
+      "retrieval_ms": 83.8282260010601,
+      "persist_ms": 756.626371992752,
+      "generation_ms": 20573.87112100332,
+      "validation_ms": 5974.785253001755,
+      "end_to_end_ms": 27406.941756002198,
+      "retries": 2,
+      "context_word_estimates_by_step": [
+        3851,
+        3861,
+        3861,
+        3861
+      ],
+      "evidence_recall": 0.75,
+      "evidence_precision": 0.6666666666666666,
+      "error": null,
+      "settings_signature": "3873f51469bfc6b289d56c188ccd859c0b8e27296b6da9fd680fd9a3c734a3d4",
+      "runtime_embedding_tokens": 0,
+      "runtime_embedding_ms": 0.0,
+      "shared_preprocessing_tokens": 14667,
+      "shared_preprocessing_ms": 23940.512827997736,
+      "shared_preprocessing_cost_usd": 0.01860039,
+      "actual_models": [
+        "gpt-5.4-mini-2026-03-17"
+      ],
+      "arm_order": "vector_first"
+    }
+  ],
+  "pairs": [
+    {
+      "pair_id": "b808b0ab044a4c0c97c7f610152f9341",
+      "project_id": "681cbe488a3e94c4",
+      "revision": "a1131142f155762405c5c6843639b5e7d857b1a9fbdb657cc8faa922f4d53fc1:scope:9c0b315aa5f56c2d98c1028ab4b388b193a8cd1a4b1c9783bf364ee9365eedef",
+      "direction": "python-to-typescript",
+      "vector_status": "failed",
+      "graph_status": "complete",
+      "vector_passed": false,
+      "graph_passed": true,
+      "delta_graph_minus_vector_input_tokens": -1650,
+      "delta_graph_minus_vector_retrieval_ms": -1850.0698499992723,
+      "delta_graph_minus_vector_end_to_end_ms": -16835.597315995983,
+      "delta_graph_minus_vector_runtime_provider_cost_usd": 0.0005294399999999991
+    }
+  ],
+  "excluded_pairs": [],
+  "success_rate_by_memory": {
+    "vector": 0.0,
+    "graph": 1.0
+  },
+  "runtime_provider_cost_per_success_by_memory": {
+    "vector": null,
+    "graph": 0.055876499999999996
+  },
+  "configuration_groups": [
+    {
+      "settings_signature": "3873f51469bfc6b289d56c188ccd859c0b8e27296b6da9fd680fd9a3c734a3d4",
+      "run_count": 2,
+      "vector_success_rate": 0.0,
+      "graph_success_rate": 1.0
+    }
+  ]
+}

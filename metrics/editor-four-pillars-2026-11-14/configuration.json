@@ -1,0 +1,11 @@
+{
+  "model": "gpt-5.4-mini",
+  "embedding_model": "text-embedding-3-small",
+  "input_usd_per_million": 0.75,
+  "output_usd_per_million": 4.5,
+  "embedding_usd_per_million": 0.02,
+  "completion_cap": 220,
+  "repeats": 4,
+  "control": true,
+  "source_commit": "cd588660d6f30fefbf1ba030e6890f93279dddf1"
+}

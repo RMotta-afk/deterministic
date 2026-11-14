@@ -86,6 +86,23 @@ def run_workflow(
         )
         return context
 
+    def link(source_id: str, target_id: str, kind: str, provenance: str) -> None:
+        persist(
+            Record(
+                record_id=f"relation:{kind}:{source_id}:{target_id}",
+                content=f"{source_id} {kind} {target_id}",
+                provenance=[provenance],
+                metadata={
+                    "kind": "relation",
+                    "relation": kind,
+                    "source_id": source_id,
+                    "target_id": target_id,
+                },
+            )
+        )
+
+    entities_by_id = {entity.entity_id: entity for entity in evidence.entities}
+    stored_ids: set[str] = set()
     for entity in evidence.entities:
         if evidence.scope_id == "project-editor" and entity.kind not in {"module", "manifest"}:
             continue
@@ -106,11 +123,14 @@ def run_workflow(
                 vector=evidence.embeddings[entity.entity_id],
             )
         )
+        stored_ids.add(entity.entity_id)
     for relation in evidence.relations:
+        source = entities_by_id[relation.source_id]
+        target_entity = entities_by_id[relation.target_id]
         persist(
             Record(
                 record_id=relation.relation_id,
-                content=f"{relation.kind} {relation.source_id} {relation.target_id}",
+                content=f"{source.path} {relation.kind} {target_entity.path}",
                 provenance=[relation.provenance],
                 metadata={
                     "kind": "relation",
@@ -131,15 +151,20 @@ def run_workflow(
     tasks = plan(evidence, target, available_ids=set(pack.evidence_ids))
     retrieved_ids = list(global_context.evidence_ids)
     generations: list[ModelResult] = []
+    artifact_id = ""
     for task in tasks:
+        task_id = f"task:{task.order}:{task.source_path}"
         persist(
             Record(
-                record_id=f"task:{task.order}:{task.source_path}",
+                record_id=task_id,
                 content=task.model_dump_json(),
                 provenance=task.evidence_ids,
                 metadata={"kind": "task", "order": str(task.order)},
             )
         )
+        for evidence_id in task.evidence_ids:
+            if evidence_id in stored_ids:
+                link(task_id, evidence_id, "USES_EVIDENCE", task.source_path)
         task_query = f"{task.source_path} contracts merge upstream api projects 409 504 422"
         context = retrieve(task_query, f"build:{task.order}")
         if not any(task.source_path in record.provenance for record in context.records):
@@ -160,14 +185,16 @@ def run_workflow(
                 cost=generation.cost_usd,
                 attempt=0,
             )
+        artifact_id = f"artifact:{task.order}:0"
         persist(
             Record(
-                record_id=artifact.resolve().as_posix(),
+                record_id=artifact_id,
                 content=artifact.read_text(encoding="utf-8"),
                 provenance=task.evidence_ids,
-                metadata={"kind": "artifact", "path": task.target_path},
+                metadata={"kind": "artifact", "path": task.target_path, "attempt": "0"},
             )
         )
+        link(artifact_id, task_id, "PRODUCED_BY", task.target_path)
 
     def check() -> ValidationResult:
         started = time.perf_counter()
@@ -191,14 +218,16 @@ def run_workflow(
     result = check()
     retries = 0
     while not result.passed and retries < MAX_RETRIES and evidence.scope_id == "project-editor":
+        validation_id = f"validation:{retries}"
         persist(
             Record(
-                record_id=f"validation:{retries}",
+                record_id=validation_id,
                 content=result.model_dump_json(),
                 provenance=[task.target_path for task in tasks],
                 metadata={"kind": "validation", "passed": "false"},
             )
         )
+        link(validation_id, artifact_id, "VALIDATES", task.target_path)
         retries += 1
         task = tasks[-1]
         context = retrieve(task_query + " validation feedback", f"retry:{retries}")
@@ -225,14 +254,22 @@ def run_workflow(
             cost=generation.cost_usd,
             attempt=retries,
         )
+        prior_artifact_id = artifact_id
+        artifact_id = f"artifact:{task.order}:{retries}"
         persist(
             Record(
-                record_id=artifact.resolve().as_posix(),
+                record_id=artifact_id,
                 content=artifact.read_text(encoding="utf-8"),
                 provenance=task.evidence_ids,
-                metadata={"kind": "artifact", "path": task.target_path},
+                metadata={
+                    "kind": "artifact",
+                    "path": task.target_path,
+                    "attempt": str(retries),
+                },
             )
         )
+        link(artifact_id, task_id, "PRODUCED_BY", task.target_path)
+        link(artifact_id, prior_artifact_id, "SUPERSEDES", task.target_path)
         result = check()
     persist(
         Record(
@@ -242,6 +279,8 @@ def run_workflow(
             metadata={"kind": "validation", "passed": str(result.passed).lower()},
         )
     )
+    if artifact_id:
+        link("validation:final", artifact_id, "VALIDATES", task.target_path)
     return WorkflowOutcome(
         pack=pack,
         tasks=tasks,

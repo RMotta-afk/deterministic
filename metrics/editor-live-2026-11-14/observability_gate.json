@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "pair_id": "b808b0ab044a4c0c97c7f610152f9341",
+  "source_relation_count": 12,
+  "shared_preprocessing_ms": 23940.512827997736,
+  "shared_preprocessing_cost_usd": 0.01860039,
+  "arms": [
+    {
+      "run_id": "72bc4e2aac0e465481196ca9d6bc9de0",
+      "memory": "vector",
+      "contract_checks_passed": 10,
+      "contract_checks_total": 12,
+      "validation_passed": false,
+      "latency_ms": 44242.53907199818,
+      "retrieval_ms": 1933.8980760003324,
+      "chat_input_tokens": 34938,
+      "chat_output_tokens": 6443,
+      "runtime_embedding_tokens": 7503,
+      "runtime_provider_tokens": 48884,
+      "runtime_provider_cost_usd": 0.05534706,
+      "path_evidence_recall": 0.625,
+      "judge_raw_contradiction_rate": 0.0,
+      "judge_calibration_passed": false,
+      "judge_false_supports": [
+        "validation_422",
+        "unchanged_no_put"
+      ],
+      "judge_inexact_quotes": [
+        "routes"
+      ]
+    },
+    {
+      "run_id": "fc681e6e33be479f9d735d15fcfe2f1c",
+      "memory": "graph",
+      "contract_checks_passed": 12,
+      "contract_checks_total": 12,
+      "validation_passed": true,
+      "latency_ms": 27406.941756002198,
+      "retrieval_ms": 83.8282260010601,
+      "chat_input_tokens": 33288,
+      "chat_output_tokens": 6869,
+      "runtime_embedding_tokens": 0,
+      "runtime_provider_tokens": 40157,
+      "runtime_provider_cost_usd": 0.055876499999999996,
+      "path_evidence_recall": 0.75,
+      "judge_raw_contradiction_rate": 0.0,
+      "judge_calibration_passed": true,
+      "judge_false_supports": [],
+      "judge_inexact_quotes": []
+    }
+  ],
+  "hallucination_status": "judge_failed_calibration",
+  "relational_accuracy_status": "not_measured",
+  "latency_status": "measured",
+  "token_consumption_status": "measured",
+  "useful_context_ratio_status": "not_measured",
+  "all_four_tcc_metrics_validated": false
+}

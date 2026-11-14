@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 import uuid
@@ -13,10 +14,18 @@ from deterministic.memory.base import Context, MemoryAdapter, PersistResult, Rec
 
 
 class VectorMemory(MemoryAdapter):
-    def __init__(self, path: Path, collection: str, qdrant_url: str | None = None):
+    def __init__(
+        self,
+        path: Path,
+        collection: str,
+        qdrant_url: str | None = None,
+        use_provider_embeddings: bool = True,
+    ):
         self.path, self.collection, self.qdrant_url = path, collection, qdrant_url
         self._collection_ready = False
-        self.embedding_model = os.getenv("MIGRATION_EMBEDDING_MODEL")
+        self.embedding_model = (
+            os.getenv("MIGRATION_EMBEDDING_MODEL") if use_provider_embeddings else None
+        )
         self.embedding_client = (
             ChatModel(ModelSettings.from_environment()) if self.embedding_model else None
         )
@@ -106,6 +115,11 @@ class VectorMemory(MemoryAdapter):
             ranked = sorted(
                 self.records.values(), key=lambda r: self._score(request.query, r), reverse=True
             )
+        anchors = [
+            self.records[record_id] for record_id in request.anchor_ids if record_id in self.records
+        ]
+        ranked = list(dict.fromkeys(record.record_id for record in anchors + ranked))
+        ranked = [self.records[record_id] for record_id in ranked]
         selected = []
         count = 0
         for rec in ranked[: request.limit]:
@@ -129,3 +143,71 @@ class VectorMemory(MemoryAdapter):
         terms = set(query.lower().split())
         body = set(rec.content.lower().split())
         return len(terms & body) / (len(terms | body) or 1)
+
+
+class FollowupVectorMemory(VectorMemory):
+    """Vector search plus bounded exact-ID follow-ups from retrieved text pointers."""
+
+    def _point(self, record_id: str) -> Record | None:
+        if record_id not in self.records:
+            return None
+        if self.qdrant_url:
+            point_id = uuid.uuid5(uuid.NAMESPACE_URL, record_id)
+            url = self.qdrant_url.rstrip("/") + f"/collections/{self.collection}/points/{point_id}"
+            try:
+                response = json.loads(urllib.request.urlopen(url, timeout=10).read())
+            except urllib.error.HTTPError as exc:
+                if exc.code == 404:
+                    return None
+                raise
+            if response.get("result", {}).get("payload", {}).get("record_id") != record_id:
+                return None
+        return self.records[record_id]
+
+    def retrieve_context(self, request: Request) -> Context:
+        initial = super().retrieve_context(request)
+        ordered: list[Record] = [
+            record for record in initial.records if record.record_id in request.anchor_ids
+        ]
+        for anchor_id in request.anchor_ids:
+            if not anchor_id.startswith("route:"):
+                continue
+            route = self._point(anchor_id)
+            if route is None:
+                continue
+            handler_match = re.search(r"\bhandler (HD-[A-F0-9]{8})\b", route.content)
+            if handler_match is None:
+                continue
+            handler_id = handler_match.group(1)
+            handler = self._point(f"handler:{handler_id}")
+            if handler is None:
+                continue
+            for record_id in (f"edge:{anchor_id.removeprefix('route:')}:{handler_id}",):
+                if edge := self._point(record_id):
+                    ordered.append(edge)
+            ordered.append(handler)
+            contract_match = re.search(r"\bcontract (CT-[A-F0-9]{8})\b", handler.content)
+            if contract_match is None:
+                continue
+            contract_id = contract_match.group(1)
+            if edge := self._point(f"edge:{handler_id}:{contract_id}"):
+                ordered.append(edge)
+            if contract := self._point(f"contract:{contract_id}"):
+                ordered.append(contract)
+        ordered.extend(initial.records)
+        selected: list[Record] = []
+        seen: set[str] = set()
+        words = 0
+        for record in ordered:
+            if record.record_id in seen:
+                continue
+            seen.add(record.record_id)
+            cost = max(1, len(record.content.split()))
+            if words + cost <= request.token_budget:
+                selected.append(record)
+                words += cost
+            if len(selected) >= request.limit:
+                break
+        return Context(
+            records=selected, token_count=words, evidence_ids=[r.record_id for r in selected]
+        )

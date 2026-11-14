@@ -10,6 +10,7 @@ class Request(BaseModel):
     query: str
     token_budget: int = Field(gt=0)
     limit: int = Field(default=10, gt=0)
+    anchor_ids: list[str] = Field(default_factory=list)
 
 
 class Record(BaseModel):

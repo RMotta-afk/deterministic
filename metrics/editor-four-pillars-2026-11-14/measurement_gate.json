@@ -1,0 +1,9 @@
+{
+  "protocol_sha256": "a307bbed627b46c222e8ff55321a00769abedc6389d2180dc80dfc2db28ce237",
+  "scored_runs": 8,
+  "four_pillars_measured": true,
+  "metric_scope": "Bounded scalar-answer factual error, task accuracy, wall time, record-labelled token relevance",
+  "independent_human_labels": false,
+  "general_graph_superiority_established": false,
+  "errors": []
+}
